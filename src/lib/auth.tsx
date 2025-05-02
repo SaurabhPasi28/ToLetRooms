@@ -9,7 +9,10 @@ import { dbConnect } from "@/lib/dbConnect";
 import { sanitizePhone } from "@/utils/validation";
 
 export const authOptions: AuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
+  // Use adapter only for non-credentials providers
+  adapter: MongoDBAdapter(clientPromise, {
+    databaseName: process.env.MONGODB_DATABASE,
+  }),
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -27,7 +30,7 @@ export const authOptions: AuthOptions = {
         }
 
         const email = credentials.email.toLowerCase();
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ email }).select('+password');
 
         // Login flow
         if (existingUser) {
@@ -39,11 +42,25 @@ export const authOptions: AuthOptions = {
           }
 
           const isValid = await bcrypt.compare(
-            credentials.password,
+            credentials.password.trim(),
             existingUser.password
           );
-          if (!isValid) throw new Error('Invalid credentials');
-          return existingUser;
+
+          console.log('Input password:', credentials.password.trim());
+          console.log('Stored hash:', existingUser.password);
+
+          if (!isValid) throw new Error('Wrong Password');
+          
+          // Return user object in the correct format
+          return {
+            id: existingUser._id.toString(),
+            email: existingUser.email,
+            name: existingUser.name,
+            role: existingUser.role,
+            googleId: existingUser.googleId
+          };
+          // return existingUser;
+
         }
 
         // Registration flow
@@ -64,13 +81,22 @@ export const authOptions: AuthOptions = {
           throw new Error('Phone number already registered');
         }
 
-        return await User.create({
+        const newUser = await User.create({
           name: credentials.name.trim(),
           email,
           phone: cleanPhone,
-          password: await bcrypt.hash(credentials.password, 12),
+          // password: await bcrypt.hash(credentials.password, 12),
+          password:credentials.password,
           role: "tenant"
         });
+
+        // Return user object in the correct format
+        return {
+          id: newUser._id.toString(),
+          email: newUser.email,
+          name: newUser.name,
+          role: newUser.role
+        };
       }
     }),
     GoogleProvider({
@@ -91,7 +117,7 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
+        token.role = user.role || 'tenant'; // Default role
         token.googleId = user.googleId;
       }
       return token;
@@ -130,5 +156,6 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60 // 30 days
   },
-  secret: process.env.NEXTAUTH_SECRET
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development'
 };

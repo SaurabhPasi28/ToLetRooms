@@ -1,3 +1,5 @@
+import { ModeToggle } from "@/components/DarkButton";
+
 // app/page.tsx
 export default function Home() {
   return (
@@ -21,6 +23,7 @@ export default function Home() {
           ))} */}
         </div>
       </section>
+      <ModeToggle/>
     </main>
   );
 }
