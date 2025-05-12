@@ -3,17 +3,17 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 // import DashboardCard from '@/components/DashboardCard.tsx';
-import DashboardCard from '@/components/DashboardCard';
-import RecentBookings from '@/components/RecentBookings';
-import WelcomeBanner from '@/components/WelcomeBanner';
+import DashboardCard from '@/components/dashboard/DashboardCard';
+import RecentBookings from '@/components/dashboard/RecentBookings';
+import WelcomeBanner from '@/components/dashboard/WelcomeBanner';
 // import RecentBookings from '@/components/RecentBookings';
 // import PropertyStats from '@/components/PropertyStats';
 // import WelcomeBanner from '@/components/WelcomeBanner';
-import PropertyStats from '@/components/PropertyStats';
-import { MessageIcon } from '@/components/MessageIcon';
-import { DollarIcon } from '@/components/DollarIcon';
+import PropertyStats from '@/components/dashboard/PropertyStats';
+import { MessageIcon } from '@/components/ui/MessageIcon';
+import { DollarIcon } from '@/components/ui/DollarIcon';
 // import { CalendarIcon } from '@/components/CalendarIcon';
-import { CalendarIcon } from '@/components/CalendarIcon';
+import { CalendarIcon } from '@/components/ui/CalendarIcon';
 import { ModeToggle } from '@/components/DarkButton';
 
 export default async function Dashboard() {

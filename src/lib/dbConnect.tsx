@@ -2,14 +2,14 @@
 import mongoose from 'mongoose';
 
 declare global {
-  var mongoose: { conn: typeof mongoose | null, promise: Promise<typeof mongoose> | null };
+  let mongoose: { conn: typeof mongoose | null, promise: Promise<typeof mongoose> | null };
 }
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) throw new Error('MONGODB_URI not defined');
 
-let cached = global.mongoose || { conn: null, promise: null };
+const cached = global.mongoose || { conn: null, promise: null };
 
 export const dbConnect = async () => {
   if (cached.conn) return cached.conn;

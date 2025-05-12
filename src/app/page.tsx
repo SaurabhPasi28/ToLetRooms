@@ -1,14 +1,16 @@
 import { ModeToggle } from "@/components/DarkButton";
+import Navbar from "@/components/Navbar";
 
 // app/page.tsx
 export default function Home() {
   return (
     <main>
       {/* Hero Section */}
+      <Navbar/>
       <div className="bg-blue-600 text-white py-20">
         <div className="container mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">
-            Find Student Housing in India
+            Welcome
           </h1>
           {/* <SearchBar /> */}
         </div>

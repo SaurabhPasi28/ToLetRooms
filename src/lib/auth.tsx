@@ -1,4 +1,5 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import { AuthOptions } from "next-auth";
+// import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
@@ -49,7 +50,10 @@ export const authOptions: AuthOptions = {
           console.log('Input password:', credentials.password.trim());
           console.log('Stored hash:', existingUser.password);
 
-          if (!isValid) throw new Error('Wrong Password');
+          if (!isValid){
+            
+            throw new Error('Wrong Password');
+          } 
           
           // Return user object in the correct format
           return {

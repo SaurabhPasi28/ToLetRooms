@@ -179,10 +179,14 @@ userSchema.pre('save', async function(next) {
   
   try {
     const salt = await bcrypt.genSalt(12);
-    this.password = await bcrypt.hash(this.password, 12);
+    this.password = await bcrypt.hash(this.password, salt);
     next();
-  } catch (err: any) {
-    next(err);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      next(err); // Pass the actual Error object
+    } else {
+      next(new Error('An unknown error occurred during password hashing'));
+    }
   }
 });
 
@@ -204,4 +208,5 @@ userSchema.index({ phone: 1 });
 
 
 const User = models.User || model<IUser>('User', userSchema);
+export type {IUser};
 export default User;

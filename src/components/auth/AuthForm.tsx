@@ -83,6 +83,9 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
 
     // Handle result
     if (result?.error) {
+      toast.error(result.error, {
+        duration: 10000
+      });
       throw new Error(result.error);
     }
 
@@ -99,7 +102,10 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
       duration: 4000
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    toast.error(error, {
+      duration: 20000
+    });
     console.error('Authentication error:', error);
     
     // More specific error messages
@@ -111,7 +117,7 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
     }
 
     toast.error(errorMessage, {
-      duration: 5000
+      duration: 20000
     });
 
   } finally {
@@ -127,7 +133,7 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
       });
       
       if (result?.error) throw new Error(result.error);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Google sign-in error:', error);
       toast.error(error.message || 'Google sign-in failed. Please try again.');
     } finally {
@@ -293,15 +299,15 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
           <p className="mt-6 text-center text-sm text-gray-600">
             {isLogin ? (
               <>
-                Don't have an account?{' '}
-                <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+                Don&apos;t have an account?{' '}
+                <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
                   Sign up
                 </Link>
               </>
             ) : (
               <>
                 Already have an account?{' '}
-                <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link href="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">
                   Sign in
                 </Link>
               </>
