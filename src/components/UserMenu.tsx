@@ -4,8 +4,10 @@ import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import Link from 'next/link';
 import User from '@/models/User';
+import { useAuthModal } from '@/components/auth/AuthModalContext'
 
 export default function UserMenu({ isLoggedIn, user }: { isLoggedIn: boolean; user?:User }) {
+  const { openModal } = useAuthModal();
   return (
     <Menu as="div" className="relative">
       <div>
@@ -81,7 +83,20 @@ export default function UserMenu({ isLoggedIn, user }: { isLoggedIn: boolean; us
             </>
           ) : (
             <>
-              <div className="py-1">
+                  <button 
+        onClick={() => openModal('login')}
+        className="px-4 py-2 rounded-full hover:bg-gray-100"
+      >
+        Log in
+      </button>
+      <button 
+        onClick={() => openModal('register')}
+        className="px-4 py-2 rounded-full bg-rose-500 text-white hover:bg-rose-600"
+      >
+        Sign up
+      </button>
+
+              {/* <div className="py-1">
                 <Menu.Item>
                   {({ active }) => (
                     <Link href="/auth/register" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
@@ -96,7 +111,7 @@ export default function UserMenu({ isLoggedIn, user }: { isLoggedIn: boolean; us
                     </Link>
                   )}
                 </Menu.Item>
-              </div>
+              </div> */}
               <div className="py-1">
                 <Menu.Item>
                   {({ active }) => (

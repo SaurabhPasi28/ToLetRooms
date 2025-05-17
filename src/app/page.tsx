@@ -1,31 +1,38 @@
-import { ModeToggle } from "@/components/DarkButton";
-import Navbar from "@/components/Navbar";
+import { Suspense } from 'react'
+import SearchBar from '@/components/SearchBar'
+import CategoryList from '@/components/CategoryList'
+import PropertyGrid from '@/components/PropertyGrid'
+import PropertyGridSkeleton from '@/components/PropertyGridSkeleton'
+import { getFeaturedProperties } from '@/lib/actions'
+import MediaUploader from '@/components/property/MediaUploader'
 
-// app/page.tsx
-export default function Home() {
+export default async function Home() {
   return (
-    <main>
-      {/* Hero Section */}
-      <Navbar/>
-      <div className="bg-blue-600 text-white py-20">
-        <div className="container mx-auto text-center">
-          <h1 className="text-4xl font-bold mb-4">
-            Welcome
-          </h1>
-          {/* <SearchBar /> */}
+    <main className="px-4 md:px-8 lg:px-12">
+      {/* Hero Section with Search */}
+      <div className="relative h-[70vh] bg-[url('/airbnb-bg.jpg')] bg-cover bg-center">
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+          <div className="w-full max-w-5xl px-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-8">
+              Find your perfect stay in India
+            </h1>
+            <SearchBar variant="hero" />
+          </div>
         </div>
       </div>
-
-      {/* Featured Cities */}
-      <section className="container mx-auto py-12">
-        <h2 className="text-2xl font-bold mb-6">Popular Cities</h2>
-        <div className="grid grid-cols-4 gap-4">
-          {/* {['Kota', 'Delhi', 'Prayagraj'].map(city => (
-            <CityCard key={city} name={city} />
-          ))} */}
-        </div>
-      </section>
-      <ModeToggle/>
+        <MediaUploader/>
+      {/* Categories & Properties */}
+      <div className="max-w-7xl mx-auto py-8">
+        <CategoryList />
+        <Suspense fallback={<PropertyGridSkeleton />}>
+          <FeaturedProperties />
+        </Suspense>
+      </div>
     </main>
-  );
+  )
+}
+
+async function FeaturedProperties() {
+  const properties = await getFeaturedProperties()
+  return <PropertyGrid properties={properties} />
 }

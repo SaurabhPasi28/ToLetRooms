@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { sanitizePhone, validateIndianPhone } from '@/utils/validation';
 
-export default function AuthForm({ isLogin }: { isLogin: boolean }) {
+export default function AuthForm({ isLogin,onClose }: { isLogin: boolean; onClose: () => void  }) {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -84,11 +84,13 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
     // Handle result
     if (result?.error) {
       toast.error(result.error, {
-        duration: 10000
+        duration: 3000
       });
-      throw new Error(result.error);
+    
+      // throw new Error(result.error);
+      return ;
     }
-
+    
     // Check if we need to redirect
     if (result?.url) {
       router.push(result.url);
@@ -99,8 +101,9 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
 
     // Show success message
     toast.success(isLogin ? 'Welcome back!' : 'Account created successfully!', {
-      duration: 4000
+      duration: 5000
     });
+    onClose(); // Close modal on success
 
   } catch (error: unknown) {
     toast.error(error, {
@@ -133,7 +136,7 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
       });
       
       if (result?.error) throw new Error(result.error);
-    } catch (error: unknown) {
+    } catch (error: unknown ) {
       console.error('Google sign-in error:', error);
       toast.error(error.message || 'Google sign-in failed. Please try again.');
     } finally {
@@ -142,7 +145,19 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="bg-white rounded-lg shadow-xl relative p-1">
+      {/* Close button */}
+      <button 
+        onClick={onClose}
+        className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100"
+        aria-label="Close"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+    <div className="min-h-10/12 bg-gray-50 flex flex-col justify-center rounded-lg py-6 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           {isLogin ? 'Sign in to your account' : 'Create a new account'}
@@ -255,7 +270,6 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
               </button>
             </div>
           </form>
-          saur
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -296,7 +310,7 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
             </div>
           </div>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+          {/* <p className="mt-6 text-center text-sm text-gray-600">
             {isLogin ? (
               <>
                 Don&apos;t have an account?{' '}
@@ -312,9 +326,11 @@ export default function AuthForm({ isLogin }: { isLogin: boolean }) {
                 </Link>
               </>
             )}
-          </p>
+          </p> */}
         </div>
       </div>
     </div>
+    </div>
+
   );
 }

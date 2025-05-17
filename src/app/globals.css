@@ -3,6 +3,30 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* globals.css */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Smooth hover transitions */
+.property-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.property-card:hover {
+  transform: translateY(-2px);
+}
+
+.container {
+  @apply mx-auto px-4;
+  max-width: 1440px;
+}
+
 .btn-primary {
     @apply bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors;
   }
@@ -92,10 +116,6 @@
 
     --radius: 0.625rem;
 
-    --background: oklch(1 0 0);
-
-    --foreground: oklch(0.145 0 0);
-
     --card: oklch(1 0 0);
 
     --card-foreground: oklch(0.145 0 0);
@@ -153,6 +173,10 @@
     --sidebar-border: oklch(0.922 0 0);
 
     --sidebar-ring: oklch(0.708 0 0);
+
+    --background: oklch(1 0 0);
+
+    --foreground: oklch(0.145 0 0);
 }
 
   .dark {

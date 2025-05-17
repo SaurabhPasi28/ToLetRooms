@@ -89,7 +89,6 @@ export const authOptions: AuthOptions = {
           name: credentials.name.trim(),
           email,
           phone: cleanPhone,
-          // password: await bcrypt.hash(credentials.password, 12),
           password:credentials.password,
           role: "tenant"
         });
