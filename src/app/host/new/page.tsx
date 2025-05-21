@@ -747,7 +747,7 @@ const formSchema = z.object({
 });
 
 interface PropertyFormProps {
-  initialData?: any;
+  initialData?: unknown;
    isEditMode?: boolean;
 }
 
@@ -767,7 +767,7 @@ export default function HostPropertyForm({ initialData,isEditMode = false }: Pro
     formState: { errors },
     setValue,
     watch,
-    reset
+    // reset
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -802,7 +802,7 @@ export default function HostPropertyForm({ initialData,isEditMode = false }: Pro
         toast.success(isEditMode ? 'Property updated!' : 'Property listed!');
         router.push('/host/properties');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error.message || 'Submission failed');
     } finally {
       setIsSubmitting(false);
@@ -810,13 +810,13 @@ export default function HostPropertyForm({ initialData,isEditMode = false }: Pro
   };
 
   const nextStep = async () => {
-    const fields = step === 1 
+    const fields: string[] = step === 1 
       ? ['title', 'description', 'propertyType']
       : step === 2
       ? ['address.street', 'address.city', 'address.state', 'address.pinCode']
       : ['price', 'bedrooms', 'bathrooms', 'maxGuests'];
     
-    const isValid = await trigger(fields as any);
+    const isValid = await trigger(fields);
     if (isValid) setStep(step + 1);
   };
 

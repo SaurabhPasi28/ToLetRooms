@@ -268,6 +268,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { Trash2, UploadCloud } from 'lucide-react';
+import Image from 'next/image';
 
 type MediaFile = {
   url: string;
@@ -382,11 +383,13 @@ export default function MediaUploader({
         {files.map((file) => (
           <div key={file.publicId} className="relative group">
             {file.type === 'image' ? (
-              <img
-                src={file.url}
-                alt="Uploaded content"
-                className="w-full h-48 object-cover rounded-lg"
-              />
+              <Image
+  src={file.url}
+  alt="Uploaded content"
+  width={400}
+  height={200}
+  className="w-full h-48 object-cover rounded-lg"
+/>
             ) : (
               <video
                 controls

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
-import Link from 'next/link';
+// import Link from 'next/link';
 import { sanitizePhone, validateIndianPhone } from '@/utils/validation';
 
 export default function AuthForm({ isLogin,onClose }: { isLogin: boolean; onClose: () => void  }) {

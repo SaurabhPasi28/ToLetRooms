@@ -376,7 +376,7 @@ const propertySchema = new mongoose.Schema({
     type: addressSchema,
     required: [true, 'Address is required'] 
   },
-  images: { 
+  media: { 
     type: [String],
     default: []
   },

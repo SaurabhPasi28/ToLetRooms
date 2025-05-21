@@ -29,7 +29,7 @@ export async function getFeaturedProperties() {
       image: '/property2.jpg'
     },
     // Add more properties as needed
-  ] as any[]
+  ] as unknown
 }
 
 export async function searchProperties(params: Record<string, string>) {

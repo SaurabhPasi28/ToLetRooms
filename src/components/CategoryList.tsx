@@ -1,5 +1,5 @@
 'use client'
-import { useRouter } from 'next/navigation'
+// import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 const categories = [
@@ -15,7 +15,7 @@ const categories = [
 ]
 
 export default function CategoryList() {
-  const router = useRouter()
+  // const router = useRouter()
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
   const handleCategoryClick = (categoryId: string) => {

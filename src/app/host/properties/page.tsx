@@ -7,6 +7,23 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Home, Plus } from 'lucide-react';
 
+interface PropertyData {
+  _id: string;
+  title: string;
+  media: Array<{
+    url: string;
+    type: 'image' | 'video';
+  }>;
+  isActive: boolean;
+  address: {
+    city: string;
+    state: string;
+  };
+  maxGuests: number;
+  bedrooms: number;
+  price: number;
+}
+
 export default async function HostPropertiesPage() {
   await dbConnect();
   const session = await getServerSession(authOptions);
@@ -23,7 +40,19 @@ export default async function HostPropertiesPage() {
 
   const properties = await Property.find({ host: session.user.id })
     .sort({ createdAt: -1 })
-    .lean();
+    .lean()
+    .then(docs => docs.map(doc => {
+      // Convert Mongoose document to plain object and transform images to media
+      const property = {
+        ...doc,
+        _id: doc._id.toString(),
+        media: doc.images.map((url: string) => ({
+          url,
+          type: url.match(/\.(mp4|mov|avi|webm)$/i) ? 'video' : 'image'
+        }))
+      };
+      return property as PropertyData;
+    }));
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -47,7 +76,7 @@ export default async function HostPropertiesPage() {
           <Home className="w-16 h-16 text-gray-400 mb-4" />
           <h2 className="text-2xl font-bold mb-2">No Properties Yet</h2>
           <p className="text-muted-foreground mb-6">
-            You haven't listed any properties yet. Get started by adding your first property.
+            You haven&apos;t listed any properties yet. Get started by adding your first property.
           </p>
           <Button asChild>
             <Link href="/host/new">Create Your First Listing</Link>
@@ -57,7 +86,7 @@ export default async function HostPropertiesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {properties.map((property) => (
             <PropertyCard 
-              key={property._id.toString()} 
+              key={property._id} 
               property={property} 
               editable 
             />

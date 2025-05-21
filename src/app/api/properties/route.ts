@@ -264,19 +264,19 @@ export async function POST(req: Request) {
     const property = await Property.create(propertyData);
     return NextResponse.json(property, { status: 201 });
 
-  } catch (error: any) {
+  } catch (error:unknown) {
     console.error('Property creation error:', error);
     return NextResponse.json(
       { 
         error: error.message || 'Server error',
-        details: error.errors ? Object.values(error.errors).map((err: any) => err.message) : []
+        // details: error.errors ? Object.values(error.errors).map((err: any) => err.message) : []
       },
       { status: 500 }
     );
   }
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     await dbConnect();
     const session = await getServerSession(authOptions);
@@ -290,7 +290,7 @@ export async function GET(req: Request) {
       .lean();
 
     return NextResponse.json(properties);
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
       { error: error.message || 'Failed to fetch properties' },
       { status: 500 }
