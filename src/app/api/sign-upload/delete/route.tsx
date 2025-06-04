@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true });
     }
     return NextResponse.json({ error: 'Deletion failed' }, { status: 400 });
-  } catch (error) {
+  } catch (error:any) {
     console.error('Delete error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

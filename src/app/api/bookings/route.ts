@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextResponse,NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import Booking from '@/models/Booking';
 import { dbConnect } from '@/lib/dbConnect';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   await dbConnect();
   const session = await getServerSession(authOptions);
-
-  if (!session?.user?.id) {
+  const user = session?.user as { id: string };
+  if (!user.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
 
     const booking = await Booking.create({
       property: propertyId,
-      user: session.user.id,
+      user: user.id,
       checkIn: new Date(checkIn),
       checkOut: new Date(checkOut),
       guests,
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     // TODO: Send confirmation email
 
     return NextResponse.json({ booking }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
     return NextResponse.json(
       { error: 'Failed to create booking' },

@@ -384,12 +384,12 @@ export default function MediaUploader({
           <div key={file.publicId} className="relative group">
             {file.type === 'image' ? (
               <Image
-  src={file.url}
-  alt="Uploaded content"
-  width={400}
-  height={200}
-  className="w-full h-48 object-cover rounded-lg"
-/>
+                src={file.url}
+                alt="Uploaded content"
+                width={400}
+                height={200}
+                className="w-full h-48 object-cover rounded-lg"
+              />
             ) : (
               <video
                 controls

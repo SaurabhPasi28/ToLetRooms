@@ -66,8 +66,8 @@ function toPlainObject(doc: any) {
   }
 
   // Convert images to media array
-  if (obj.images) {
-    obj.media = obj.images.map((url: string) => ({
+  if (obj.media) {
+    obj.media = obj.media.map((url: string) => ({
       url,
       type: url.match(/\.(mp4|mov|avi|webm)$/i) ? 'video' : 'image'
     }));
@@ -84,11 +84,16 @@ function toPlainObject(doc: any) {
   return obj;
 }
 
+// export default async function PropertyPage({
+//   params,
+// }: {
+//   params: { id: string };
+// }) {
+
+
 export default async function PropertyPage({
   params,
-}: {
-  params: { id: string };
-}) {
+}: any) {
   await dbConnect();
 
   const property = await Property.findById(params.id)

@@ -4,18 +4,22 @@ import { dbConnect } from '@/lib/dbConnect';
 import { SearchBar } from '@/components/SearchBar';
 import { FilterSidebar } from '@/components/FilterSidebar';
 
+// export default async function HomePage({
+//   searchParams,
+// }: {
+//   searchParams?: {
+//     query?: string;
+//     location?: string;
+//     minPrice?: string;
+//     maxPrice?: string;
+//     bedrooms?: string;
+//     propertyType?: string;
+//   };
+// }) {
+
 export default async function HomePage({
   searchParams,
-}: {
-  searchParams?: {
-    query?: string;
-    location?: string;
-    minPrice?: string;
-    maxPrice?: string;
-    bedrooms?: string;
-    propertyType?: string;
-  };
-}) {
+}: any) {
   await dbConnect();
 
   // Build the filter object based on search params
@@ -54,7 +58,7 @@ export default async function HomePage({
     .then(docs => docs.map(doc => ({
       ...doc,
       _id: doc._id.toString(),
-      media: doc.images.map((url: string) => ({
+      media: doc.media?.map((url: string) => ({
         url,
         type: url.match(/\.(mp4|mov|avi|webm)$/i) ? 'video' : 'image'
       }))

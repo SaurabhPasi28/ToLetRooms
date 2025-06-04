@@ -25,7 +25,7 @@ export async function GET() {
       cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
       uploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET,
     });
-  } catch (error) {
+  } catch (error:any) {
     console.error('Signature error:', error);
     return NextResponse.json(
       { error: 'Failed to generate signature' },

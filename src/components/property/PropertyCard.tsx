@@ -149,7 +149,7 @@ export default function PropertyCard({ property, editable = false }: {
 
   const handlePrev = () => {
     setCurrentMediaIndex(prev => 
-      prev === 0 ? property.media.length - 1 : prev - 1
+      prev === 0 ? property.media!.length - 1 : prev - 1
     );
     // Pause video when navigating
     if (videoRef.current) {
@@ -159,7 +159,7 @@ export default function PropertyCard({ property, editable = false }: {
 
   const handleNext = () => {
     setCurrentMediaIndex(prev => 
-      prev === property.media.length - 1 ? 0 : prev + 1
+      prev === property.media!.length - 1 ? 0 : prev + 1
     );
     // Pause video when navigating
     if (videoRef.current) {
@@ -167,10 +167,14 @@ export default function PropertyCard({ property, editable = false }: {
     }
   };
 
+  // const handleCardClick = () => {
+  //   router.push(`/properties/${property._id}`);
+  // };
+
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this property?')) {
       try {
-        const deleteMediaPromises = property.media.map(async (media) => {
+        const deleteMediaPromises = property.media!.map(async (media) => {
           const publicId = media.url.split('/').pop()?.split('.')[0];
           if (!publicId) return;
           
@@ -204,7 +208,8 @@ export default function PropertyCard({ property, editable = false }: {
 
   return (
     <Link href={`/properties/${property._id}`} className="block">
-    <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all">
+    {/* <div onClick={handleCardClick} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all"> */}
+     <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all">
       <div className="relative aspect-video bg-gray-100">
         {property.media?.length ? (
           <>
@@ -255,7 +260,7 @@ export default function PropertyCard({ property, editable = false }: {
             {/* Media type indicator and position */}
             <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-md z-10">
               {currentMediaIndex + 1}/{property.media.length}
-              {currentMedia.type === 'video' && (
+              {currentMedia?.type === 'video' && (
                 <span className="ml-1">🎥</span>
               )}
             </div>
@@ -346,7 +351,7 @@ export default function PropertyCard({ property, editable = false }: {
 )}
       </div>
     </div>
-</Link>
+  </Link>
   );
 }
 

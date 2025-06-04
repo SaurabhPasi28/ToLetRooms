@@ -723,8 +723,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
-import FormStepper from '@/components/ui/FormStepper';
+import {FormStepper }from '@/components/ui/FormStepper';
 import MediaUploader from '@/components/property/MediaUploader';
+import { PropertyFormProps } from '@/types/next-auth';
 
 const formSchema = z.object({
   title: z.string().min(10, "Title must be at least 10 characters"),
@@ -743,20 +744,20 @@ const formSchema = z.object({
   bathrooms: z.number().min(1),
   maxGuests: z.number().min(1),
   amenities: z.array(z.string()).optional(),
-  images: z.array(z.string().url()).min(1, "At least 1 image is required")
+  media: z.array(z.string().url()).min(1, "At least 1 image is required")
 });
 
-interface PropertyFormProps {
-  initialData?: unknown;
-   isEditMode?: boolean;
-}
+// interface PropertyFormProps {
+//   initialData?: any;
+//   isEditMode?: boolean;
+// }
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function HostPropertyForm({ initialData,isEditMode = false }: PropertyFormProps) {
+export default function HostPropertyForm({ initialData,isEditMode = false }:any) {
   const [step, setStep] = useState(1);
   // const isEditMode = !!initialData;
-  const [imagesg, setImages] = useState<string[]>(initialData?.images || []);
+  const [media, setMedia] = useState<string[]>(initialData?.media || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   
@@ -766,7 +767,7 @@ export default function HostPropertyForm({ initialData,isEditMode = false }: Pro
     trigger,
     formState: { errors },
     setValue,
-    watch,
+    // watch,
     // reset
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -778,7 +779,7 @@ export default function HostPropertyForm({ initialData,isEditMode = false }: Pro
       }
     }
   });
-  const images = watch('images') || [];
+  // const media = watch('media') || [];
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
@@ -794,7 +795,7 @@ export default function HostPropertyForm({ initialData,isEditMode = false }: Pro
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          images
+          media
         })
       });
 
@@ -802,7 +803,7 @@ export default function HostPropertyForm({ initialData,isEditMode = false }: Pro
         toast.success(isEditMode ? 'Property updated!' : 'Property listed!');
         router.push('/host/properties');
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       toast.error(error.message || 'Submission failed');
     } finally {
       setIsSubmitting(false);
@@ -816,8 +817,9 @@ export default function HostPropertyForm({ initialData,isEditMode = false }: Pro
       ? ['address.street', 'address.city', 'address.state', 'address.pinCode']
       : ['price', 'bedrooms', 'bathrooms', 'maxGuests'];
     
-    const isValid = await trigger(fields);
-    if (isValid) setStep(step + 1);
+    // const isValid = await trigger(fields);
+    // if (isValid) setStep(step + 1);
+    setStep(step + 1);
   };
 
   return (
@@ -995,14 +997,14 @@ export default function HostPropertyForm({ initialData,isEditMode = false }: Pro
     Photos* (Minimum 1)
   </label>
    <MediaUploader
-        value={imagesg}
+        value={media}
         onChange={(urls) => {
-          setImages(urls);
-          setValue('images', urls);
+          setMedia(urls);
+          setValue('media', urls);
         }}
       />
-  {errors.images && (
-    <p className="text-red-500 text-sm mt-1">{errors.images.message}</p>
+  {errors.media && (
+    <p className="text-red-500 text-sm mt-1">{errors.media.message}</p>
   )}
 </div>
           </div>

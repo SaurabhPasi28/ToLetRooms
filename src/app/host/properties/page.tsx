@@ -43,14 +43,16 @@ export default async function HostPropertiesPage() {
     .lean()
     .then(docs => docs.map(doc => {
       // Convert Mongoose document to plain object and transform images to media
+      console.log("------------->doc",doc)
       const property = {
         ...doc,
         _id: doc._id.toString(),
-        media: doc.images.map((url: string) => ({
+        media: doc.media?.map((url: string) => ({
           url,
           type: url.match(/\.(mp4|mov|avi|webm)$/i) ? 'video' : 'image'
         }))
       };
+      // console.log("-------------->propety",property)
       return property as PropertyData;
     }));
 

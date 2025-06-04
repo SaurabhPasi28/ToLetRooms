@@ -13,4 +13,4 @@ export async function POST(request) {
     const body = await request.json();
     const listing = await Listing.create(body);
     return NextResponse.json(listing);
-  }
+}

@@ -65,7 +65,7 @@ export default function BookingConfirmation({
           userId: user.id,
         }),
       });
-
+  console.log("------------------>session.user")
       if (!response.ok) {
         throw new Error('Booking failed');
       }
@@ -176,7 +176,6 @@ export default function BookingConfirmation({
             </p>
           </div>
         </div>
-
         {/* Booking summary */}
         <div className="sticky top-4 h-fit">
           <div className="border rounded-xl p-6 shadow-sm">
