@@ -141,11 +141,11 @@ interface PropertyData {
   host: string;
 }
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
+// interface PageProps {
+//   params: {
+//     id: string;
+//   };
+// }
 
 export default function EditPropertyPage({ params }: any) {
   const router = useRouter();

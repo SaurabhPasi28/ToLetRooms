@@ -33,7 +33,8 @@ export async function getFeaturedProperties() {
 }
 
 export async function searchProperties(params: Record<string, string>) {
-  await connectToDB()
+  // await connectToDB()
+  await dbConnect()
   
   const query: any = {}
   

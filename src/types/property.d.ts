@@ -1,12 +1,5 @@
-// types/property.d.ts
-import { Types, Document } from 'mongoose';
-
-interface Coordinates {
-  type: string;
-  coordinates: number[];
-}
-
-interface PropertyAddress {
+import { Types } from "mongoose";
+export interface PropertyAddress {
   houseNumber?: string;
   buildingName?: string;
   street: string;
@@ -15,31 +8,35 @@ interface PropertyAddress {
   city: string;
   state: string;
   pinCode: string;
-  country: string;
-  coordinates: Coordinates;
+  country?: string;
+  coordinates?: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
 }
 
-interface PropertyAvailability {
-  startDate?: Date;
-  endDate?: Date;
-}
-
-export interface IProperty extends Document {
-  _id: Types.ObjectId;
+export interface IProperty {
+  _id?: string; // optional for creating, required when fetched
   title: string;
   description: string;
   price: number;
   propertyType: 'apartment' | 'house' | 'villa' | 'pg' | 'hostel';
   address: PropertyAddress;
   media: string[];
+  // host: string; // populated as string from ObjectId
   host: Types.ObjectId;
-  amenities?: ('wifi' | 'ac' | 'kitchen' | 'parking' | 'tv')[];
+  amenities: ('wifi' | 'ac' | 'kitchen' | 'parking' | 'tv')[];
   maxGuests: number;
   bedrooms: number;
   bathrooms: number;
   isActive: boolean;
-  availability?: PropertyAvailability;
-  createdAt: Date;
-  updatedAt: Date;
-  __v: number;
+  availability?: {
+    startDate?: Date;
+    endDate?: Date;
+  };
+  createdAt?: Date;
+  updatedAt?: Date;
 }
+
+
+export type LeanProperty = IProperty & { _id: string; host: Types.ObjectId };

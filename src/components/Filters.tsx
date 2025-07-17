@@ -9,8 +9,8 @@ export default function Filters() {
 
   const applyFilters = () => {
     const params = new URLSearchParams(searchParams);
-    params.set('minPrice', priceRange[0]);
-    params.set('maxPrice', priceRange[1]);
+    // params.set('minPrice', priceRange[0]);
+    // params.set('maxPrice', priceRange[1]);
     router.push(`/search?${params.toString()}`);
   };
 

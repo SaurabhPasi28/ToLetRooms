@@ -105,7 +105,7 @@ export default function AuthForm({ isLogin,onClose }: { isLogin: boolean; onClos
     });
     onClose(); // Close modal on success
 
-  } catch (error: unknown) {
+  } catch (error: any) {
     toast.error(error, {
       duration: 20000
     });
@@ -136,7 +136,7 @@ export default function AuthForm({ isLogin,onClose }: { isLogin: boolean; onClos
       });
       
       if (result?.error) throw new Error(result.error);
-    } catch (error: unknown ) {
+    } catch (error: any ) {
       console.error('Google sign-in error:', error);
       toast.error(error.message || 'Google sign-in failed. Please try again.');
     } finally {

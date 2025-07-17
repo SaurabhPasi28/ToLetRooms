@@ -3,10 +3,19 @@
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import Link from 'next/link';
-import User from '@/models/User';
+// import User from '@/models/User';
 import { useAuthModal } from '@/components/auth/AuthModalContext'
 
-export default function UserMenu({ isLoggedIn, user }: { isLoggedIn: boolean; user?:User }) {
+
+type SessionUser = {
+  id: string;
+  name: string;
+  email: string;
+  image?: string;
+  role?: string;
+  googleId?: string;
+};
+export default function UserMenu({ isLoggedIn, user }: { isLoggedIn: boolean; user?: SessionUser}) {
   const { openModal } = useAuthModal();
   return (
     <Menu as="div" className="relative">

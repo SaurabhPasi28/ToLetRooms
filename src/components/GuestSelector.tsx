@@ -7,7 +7,7 @@ export default function GuestSelector({
   onClose
 }: {
   guests: { adults: number; children: number; infants: number; pets: number }
-  onChange: (guests: typeof guests) => void
+  onChange: (guests: any) => void
   onClose: () => void
 }) {
   const updateCount = (type: keyof typeof guests, value: number) => {

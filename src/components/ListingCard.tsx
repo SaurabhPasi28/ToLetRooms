@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function ListingCard({ listing }: { listing: Listing }) {
+export default function ListingCard({ listing }: { listing:any }) {
   return (
     <Link href={`/listings/${listing._id}`} className="group">
       <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200">

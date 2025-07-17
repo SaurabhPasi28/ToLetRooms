@@ -725,7 +725,7 @@ import { z } from 'zod';
 import { toast } from 'react-hot-toast';
 import {FormStepper }from '@/components/ui/FormStepper';
 import MediaUploader from '@/components/property/MediaUploader';
-import { PropertyFormProps } from '@/types/next-auth';
+// import { PropertyFormProps } from '@/types/next-auth';
 
 const formSchema = z.object({
   title: z.string().min(10, "Title must be at least 10 characters"),
@@ -810,17 +810,17 @@ export default function HostPropertyForm({ initialData,isEditMode = false }:any)
     }
   };
 
-  const nextStep = async () => {
-    const fields: string[] = step === 1 
-      ? ['title', 'description', 'propertyType']
+const nextStep = async () => {
+  const fields =
+    step === 1
+      ? (['title', 'description', 'propertyType'] as const)
       : step === 2
-      ? ['address.street', 'address.city', 'address.state', 'address.pinCode']
-      : ['price', 'bedrooms', 'bathrooms', 'maxGuests'];
-    
-    // const isValid = await trigger(fields);
-    // if (isValid) setStep(step + 1);
-    setStep(step + 1);
-  };
+      ? (['address.street', 'address.city', 'address.state', 'address.pinCode'] as const)
+      : (['price', 'bedrooms', 'bathrooms', 'maxGuests'] as const);
+
+  const isValid = await trigger(fields);
+  if (isValid) setStep(step + 1);
+};
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-sm">

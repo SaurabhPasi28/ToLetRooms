@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
-import FormStepper from '@/components/ui/FormStepper';
+import { FormStepper } from "@/components/ui/FormStepper";
 import MediaUploader from '@/components/property/MediaUploader';
 
 const formSchema = z.object({
@@ -140,15 +140,16 @@ const nextStep = async (e?: React.MouseEvent) => {
   
   setIsTransitioning(true);
   try {
-    const fields: string[] = step === 1 
-      ? ['title', 'description', 'propertyType']
-      : ['address.street', 'address.city', 'address.state', 'address.pinCode'];
-    
-    const isValid = await trigger(fields);
-    if (!isValid) {
-      toast.error('Please fill all required fields');
-      return;
-    }
+const fields =
+  step === 1
+    ? (['title', 'description', 'propertyType'] as const)
+    : (['address.street', 'address.city', 'address.state', 'address.pinCode'] as const);
+
+const isValid = await trigger(fields);
+if (!isValid) {
+  toast.error('Please fill all required fields');
+  return;
+}
     
     setStep(step + 1);
   } finally {
