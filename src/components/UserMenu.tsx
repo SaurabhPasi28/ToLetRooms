@@ -67,8 +67,8 @@ export default function UserMenu({ isLoggedIn, user }: { isLoggedIn: boolean; us
               <div className="py-1">
                 <Menu.Item>
                   {({ active }) => (
-                    <Link href="/host" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
-                      Airbnb your home
+                    <Link href="/properties/listed" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
+                      See Your Property
                     </Link>
                   )}
                 </Menu.Item>
@@ -124,8 +124,8 @@ export default function UserMenu({ isLoggedIn, user }: { isLoggedIn: boolean; us
               <div className="py-1">
                 <Menu.Item>
                   {({ active }) => (
-                    <Link href="/host" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
-                      Airbnb your home
+                    <Link href="/properties/listed" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
+                      See Your Propery
                     </Link>
                   )}
                 </Menu.Item>

@@ -35,8 +35,8 @@ export default async function Navbar() {
           {/* Right Side */}
           <div className="flex items-center space-x-4">
             {/* Host Link */}
-            <Link href="/host" className="hidden md:block text-sm font-medium hover:bg-gray-100 px-4 py-2 rounded-full">
-              Airbnb your home
+            <Link href="/properties/host" className="hidden md:block text-sm font-medium hover:bg-gray-100 px-4 py-2 rounded-full">
+            List Your Property
             </Link>
 
             {/* User Menu */}

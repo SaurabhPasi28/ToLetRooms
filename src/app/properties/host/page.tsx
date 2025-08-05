@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
-import { FormStepper } from "@/components/ui/FormStepper";
+import {FormStepper }from '@/components/ui/FormStepper';
 import MediaUploader from '@/components/property/MediaUploader';
+// import { PropertyFormProps } from '@/types/next-auth';
 
 const formSchema = z.object({
   title: z.string().min(10, "Title must be at least 10 characters"),
@@ -29,19 +30,19 @@ const formSchema = z.object({
   media: z.array(z.string().url()).min(1, "At least 1 image is required")
 });
 
-interface PropertyFormProps {
-  initialData?: any;
-  isEditMode?: boolean;
-}
+// interface PropertyFormProps {
+//   initialData?: any;
+//   isEditMode?: boolean;
+// }
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function HostPropertyForm({ initialData, isEditMode = false }: PropertyFormProps) {
+export default function HostPropertyForm({ initialData,isEditMode = false }:any) {
   const [step, setStep] = useState(1);
-  const [media, setMedia] = useState<string[]>([]);
+  // const isEditMode = !!initialData;
+  const [media, setMedia] = useState<string[]>(initialData?.media || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  const [isTransitioning, setIsTransitioning] = useState(false);
   
   const {
     register,
@@ -49,52 +50,23 @@ export default function HostPropertyForm({ initialData, isEditMode = false }: Pr
     trigger,
     formState: { errors },
     setValue,
-    reset
+    // watch,
+    // reset
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       propertyType: 'apartment',
       amenities: [],
       address: {
-        areaOrLocality: '',
-        houseNumber: ''
+        areaOrLocality: ''
       }
     }
   });
-
-  // Set initial form values when initialData changes
-  useEffect(() => {
-    if (initialData && isEditMode) {
-      // Transform initialData to match form structure
-      const defaultValues = {
-        title: initialData.title || '',
-        description: initialData.description || '',
-        propertyType: initialData.propertyType || 'apartment',
-        address: {
-          street: initialData.address?.street || '',
-          city: initialData.address?.city || '',
-          state: initialData.address?.state || '',
-          pinCode: initialData.address?.pinCode || '',
-          areaOrLocality: initialData.address?.areaOrLocality || '',
-          houseNumber: initialData.address?.houseNumber || ''
-        },
-        price: initialData.price || 0,
-        bedrooms: initialData.bedrooms || 1,
-        bathrooms: initialData.bathrooms || 1,
-        maxGuests: initialData.maxGuests || 1,
-        amenities: initialData.amenities || [],
-        media: initialData.media || []
-      };
-
-      reset(defaultValues);
-      setMedia(initialData.media || []);
-    }
-  }, [initialData, isEditMode, reset]);
+  // const media = watch('media') || [];
 
   const onSubmit = async (data: FormData) => {
-    if (isTransitioning) return; // Prevent submission during step transition
     setIsSubmitting(true);
-    try {
+      try {
       const url = isEditMode 
         ? `/api/properties/${initialData._id}`
         : '/api/properties';
@@ -112,10 +84,7 @@ export default function HostPropertyForm({ initialData, isEditMode = false }: Pr
 
       if (response.ok) {
         toast.success(isEditMode ? 'Property updated!' : 'Property listed!');
-        router.push('/properties/listed ');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Submission failed');
+        router.push('/host/properties');
       }
     } catch (error: any) {
       toast.error(error.message || 'Submission failed');
@@ -124,54 +93,27 @@ export default function HostPropertyForm({ initialData, isEditMode = false }: Pr
     }
   };
 
-//   const nextStep = async () => {
-//     const fields: string[] = step === 1 
-//       ? ['title', 'description', 'propertyType']
-//       : step === 2
-//       ? ['address.street', 'address.city', 'address.state', 'address.pinCode']
-//       : ['price', 'bedrooms', 'bathrooms', 'maxGuests'];
-    
-//     const isValid = await trigger(fields);
-//     if (isValid) setStep(step + 1);
-//   };
-const nextStep = async (e?: React.MouseEvent) => {
-  if (e) e.preventDefault(); // Prevent default button behavior
-  if (step >= 3) return;
-  
-  setIsTransitioning(true);
-  try {
-const fields =
-  step === 1
-    ? (['title', 'description', 'propertyType'] as const)
-    : (['address.street', 'address.city', 'address.state', 'address.pinCode'] as const);
+const nextStep = async () => {
+  const fields =
+    step === 1
+      ? (['title', 'description', 'propertyType'] as const)
+      : step === 2
+      ? (['address.street', 'address.city', 'address.state', 'address.pinCode'] as const)
+      : (['price', 'bedrooms', 'bathrooms', 'maxGuests'] as const);
 
-const isValid = await trigger(fields);
-if (!isValid) {
-  toast.error('Please fill all required fields');
-  return;
-}
-    
-    setStep(step + 1);
-  } finally {
-    setIsTransitioning(false);
-  }
+  const isValid = await trigger(fields);
+  if (isValid) setStep(step + 1);
 };
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-sm">
-      <h1 className="text-2xl font-bold mb-6">
-        {isEditMode ? 'Edit Property' : 'List Your Property'}
-      </h1>
+       <h1 className="text-2xl font-bold mb-6">
+    {isEditMode ? 'Edit Property' : 'List Your Property'}
+  </h1>
       
       <FormStepper currentStep={step} steps={['Basic Info', 'Location', 'Details']} />
 
-      <form onSubmit={handleSubmit(onSubmit)} 
-       onKeyDown={(e) => {
-          if (e.key === 'Enter' && step < 3) {
-            e.preventDefault();
-            nextStep();
-          }
-        }}
-      className="mt-8 space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-6">
         {/* Step 1: Basic Information */}
         {step === 1 && (
           <div className="space-y-4">
@@ -333,22 +275,21 @@ if (!isValid) {
                 ))}
               </div>
             </div>
-            
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Photos* (Minimum 1)
-              </label>
-              <MediaUploader
-                value={media}
-                onChange={(urls) => {
-                  setMedia(urls);
-                  setValue('media', urls);
-                }}
-              />
-              {errors.media && (
-                <p className="text-red-500 text-sm mt-1">{errors.media.message}</p>
-              )}
-            </div>
+  <label className="block text-sm font-medium mb-1">
+    Photos* (Minimum 1)
+  </label>
+   <MediaUploader
+        value={media}
+        onChange={(urls) => {
+          setMedia(urls);
+          setValue('media', urls);
+        }}
+      />
+  {errors.media && (
+    <p className="text-red-500 text-sm mt-1">{errors.media.message}</p>
+  )}
+</div>
           </div>
         )}
 
@@ -364,23 +305,13 @@ if (!isValid) {
           )}
           
           {step < 3 ? (
-            // <button
-            //   type="button"
-            //   onClick={nextStep}
-            //   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            // >
-            //   Next
-            // </button>
-<button
-  type="button"
-  onClick={(e) => nextStep(e)}
-  disabled={isTransitioning}
-  className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ${
-    isTransitioning ? 'opacity-50 cursor-not-allowed' : ''
-  }`}
->
-  {isTransitioning ? 'Validating...' : 'Next'}
-</button>
+            <button
+              type="button"
+              onClick={nextStep}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Next
+            </button>
           ) : (
             <button
               type="submit"
@@ -389,7 +320,7 @@ if (!isValid) {
                 isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              {isSubmitting ? 'Submitting...' : isEditMode ? 'Update Property' : 'Submit Listing'}
+              {isSubmitting ? 'Submitting...' : 'Submit Listing'}
             </button>
           )}
         </div>

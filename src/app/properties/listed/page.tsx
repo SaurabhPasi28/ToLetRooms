@@ -66,7 +66,7 @@ export default async function HostPropertiesPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/host/new" className="flex items-center gap-2">
+          <Link href="host" className="flex items-center gap-2">
             <Plus size={18} />
             Add New Property
           </Link>
@@ -81,7 +81,7 @@ export default async function HostPropertiesPage() {
             You haven&apos;t listed any properties yet. Get started by adding your first property.
           </p>
           <Button asChild>
-            <Link href="/host/new">Create Your First Listing</Link>
+            <Link href="host">Create Your First Listing</Link>
           </Button>
         </div>
       ) : (
