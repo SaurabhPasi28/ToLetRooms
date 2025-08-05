@@ -84,7 +84,7 @@ export default function HostPropertyForm({ initialData,isEditMode = false }:any)
 
       if (response.ok) {
         toast.success(isEditMode ? 'Property updated!' : 'Property listed!');
-        router.push('/host/properties');
+        router.push('listed');
       }
     } catch (error: any) {
       toast.error(error.message || 'Submission failed');

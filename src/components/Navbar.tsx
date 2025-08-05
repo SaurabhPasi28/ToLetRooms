@@ -2,45 +2,75 @@ import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import UserMenu from '@/components/UserMenu';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { Search, Menu, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useAuthModal } from '@/components/auth/AuthModalContext';
+import MobileNav from '@/components/MobileNav';
 
 export default async function Navbar() {
   const session = await getServerSession(authOptions);
   const isLoggedIn = !!session?.user;
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <span className="text-rose-500 font-bold text-xl">StayEase</span>
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+              <span className="text-primary-foreground font-bold text-sm">S</span>
+            </div>
+            <span className="hidden font-bold sm:inline-block text-xl">
+              StayEase
+            </span>
           </Link>
 
-          {/* Search Bar - Middle Section */}
-          <div className="hidden md:flex items-center justify-center flex-1 max-w-md mx-4">
-            <div className="flex divide-x divide-gray-300 border border-gray-300 rounded-full shadow-sm hover:shadow-md transition-shadow">
-              <button className="px-4 py-2 text-sm font-medium">Anywhere</button>
-              <button className="px-4 py-2 text-sm font-medium">Any week</button>
-              <button className="px-4 py-2 text-sm font-medium text-gray-500 flex items-center">
-                Add guests
-                <span className="ml-2 bg-rose-500 text-white p-2 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </span>
-              </button>
+          {/* Desktop Search Bar */}
+          <div className="hidden md:flex items-center justify-center flex-1 max-w-md mx-8">
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search destinations..."
+                className="w-full rounded-full border bg-background px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
             </div>
           </div>
 
-          {/* Right Side */}
-          <div className="flex items-center space-x-4">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
             {/* Host Link */}
-            <Link href="/properties/host" className="hidden md:block text-sm font-medium hover:bg-gray-100 px-4 py-2 rounded-full">
-            List Your Property
+            <Link 
+              href="/properties/host" 
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              List Your Property
             </Link>
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
             {/* User Menu */}
             <UserMenu isLoggedIn={isLoggedIn} user={session?.user} />
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
+            <MobileNav />
+          </div>
+        </div>
+
+        {/* Mobile Search Bar */}
+        <div className="md:hidden py-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search destinations..."
+              className="w-full rounded-full border bg-background px-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
           </div>
         </div>
       </div>

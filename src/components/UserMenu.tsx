@@ -3,9 +3,20 @@
 import { Menu, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import Link from 'next/link';
-// import User from '@/models/User';
-import { useAuthModal } from '@/components/auth/AuthModalContext'
-
+import { signOut } from 'next-auth/react';
+import { useAuthModal } from '@/components/auth/AuthModalContext';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { 
+  User, 
+  LogOut, 
+  Settings, 
+  Heart, 
+  Calendar,
+  Building2,
+  HelpCircle,
+  ChevronDown
+} from 'lucide-react';
 
 type SessionUser = {
   id: string;
@@ -15,21 +26,53 @@ type SessionUser = {
   role?: string;
   googleId?: string;
 };
+
 export default function UserMenu({ isLoggedIn, user }: { isLoggedIn: boolean; user?: SessionUser}) {
   const { openModal } = useAuthModal();
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/' });
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <Menu as="div" className="relative">
       <div>
-        <Menu.Button className="flex items-center space-x-2 border border-gray-300 rounded-full p-2 hover:shadow-md transition-shadow">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          <div className="bg-gray-500 text-white rounded-full p-1">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+        {isLoggedIn ? (
+          <Menu.Button className="flex items-center space-x-2 rounded-full border bg-background px-3 py-2 hover:bg-accent transition-colors">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user?.image} alt={user?.name} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                {user?.name ? getInitials(user.name) : 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          </Menu.Button>
+        ) : (
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              onClick={() => openModal('login')}
+              className="text-sm"
+            >
+              Log in
+            </Button>
+            <Button
+              onClick={() => openModal('register')}
+              className="text-sm"
+            >
+              Sign up
+            </Button>
           </div>
-        </Menu.Button>
+        )}
       </div>
 
       <Transition
@@ -41,99 +84,116 @@ export default function UserMenu({ isLoggedIn, user }: { isLoggedIn: boolean; us
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right rounded-md border bg-background shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           {isLoggedIn ? (
             <>
-              <div className="px-4 py-3">
+              <div className="px-4 py-3 border-b">
                 <p className="text-sm font-medium">Welcome back</p>
-                <p className="text-sm text-gray-500 truncate">{user?.email}</p>
+                <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
               </div>
+              
               <div className="py-1">
                 <Menu.Item>
                   {({ active }) => (
-                    <Link href="/trips" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
-                      Trips
+                    <Link 
+                      href="/dashboard" 
+                      className={`${
+                        active ? 'bg-accent' : ''
+                      } flex items-center px-4 py-2 text-sm text-foreground`}
+                    >
+                      <Calendar className="mr-3 h-4 w-4" />
+                      My Trips
                     </Link>
                   )}
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <Link href="/wishlists" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
+                    <Link 
+                      href="/wishlists" 
+                      className={`${
+                        active ? 'bg-accent' : ''
+                      } flex items-center px-4 py-2 text-sm text-foreground`}
+                    >
+                      <Heart className="mr-3 h-4 w-4" />
                       Wishlists
                     </Link>
                   )}
                 </Menu.Item>
               </div>
+              
               <div className="py-1">
                 <Menu.Item>
                   {({ active }) => (
-                    <Link href="/properties/listed" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
-                      See Your Property
+                    <Link 
+                      href="/properties/listed" 
+                      className={`${
+                        active ? 'bg-accent' : ''
+                      } flex items-center px-4 py-2 text-sm text-foreground`}
+                    >
+                      <Building2 className="mr-3 h-4 w-4" />
+                      My Properties
                     </Link>
                   )}
                 </Menu.Item>
               </div>
-              <div className="py-1">
+              
+              <div className="py-1 border-t">
                 <Menu.Item>
                   {({ active }) => (
-                    <Link href="/account" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
-                      Account
+                    <Link 
+                      href="/account" 
+                      className={`${
+                        active ? 'bg-accent' : ''
+                      } flex items-center px-4 py-2 text-sm text-foreground`}
+                    >
+                      <Settings className="mr-3 h-4 w-4" />
+                      Account Settings
                     </Link>
                   )}
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <Link href="/api/auth/signout" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
-                      Log out
-                    </Link>
+                    <button
+                      onClick={handleSignOut}
+                      className={`${
+                        active ? 'bg-accent' : ''
+                      } flex w-full items-center px-4 py-2 text-sm text-foreground`}
+                    >
+                      <LogOut className="mr-3 h-4 w-4" />
+                      Sign out
+                    </button>
                   )}
                 </Menu.Item>
               </div>
             </>
           ) : (
             <>
-                  <button 
-        onClick={() => openModal('login')}
-        className="px-4 py-2 rounded-full hover:bg-gray-100"
-      >
-        Log in
-      </button>
-      <button 
-        onClick={() => openModal('register')}
-        className="px-4 py-2 rounded-full bg-rose-500 text-white hover:bg-rose-600"
-      >
-        Sign up
-      </button>
-
-              {/* <div className="py-1">
-                <Menu.Item>
-                  {({ active }) => (
-                    <Link href="/auth/register" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
-                      Sign up
-                    </Link>
-                  )}
-                </Menu.Item>
-                <Menu.Item>
-                  {({ active }) => (
-                    <Link href="/auth/login" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
-                      Log in
-                    </Link>
-                  )}
-                </Menu.Item>
-              </div> */}
               <div className="py-1">
                 <Menu.Item>
                   {({ active }) => (
-                    <Link href="/properties/listed" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
-                      See Your Propery
+                    <Link 
+                      href="/properties/listed" 
+                      className={`${
+                        active ? 'bg-accent' : ''
+                      } flex items-center px-4 py-2 text-sm text-foreground`}
+                    >
+                      <Building2 className="mr-3 h-4 w-4" />
+                      My Properties
                     </Link>
                   )}
                 </Menu.Item>
               </div>
-              <div className="py-1">
+              
+              <div className="py-1 border-t">
                 <Menu.Item>
                   {({ active }) => (
-                    <Link href="/help" className={`${active ? 'bg-gray-100' : ''} block px-4 py-2 text-sm text-gray-700`}>
+                    <Link 
+                      href="/help" 
+                      className={`${
+                        active ? 'bg-accent' : ''
+                      } flex items-center px-4 py-2 text-sm text-foreground`}
+                    >
+                      <HelpCircle className="mr-3 h-4 w-4" />
                       Help Center
                     </Link>
                   )}

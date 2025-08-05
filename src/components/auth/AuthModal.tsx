@@ -1,7 +1,7 @@
 // components/AuthModal.tsx
 'use client';
 
-import { useEffect,useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import AuthForm from './AuthForm';
 import { useAuthModal } from './AuthModalContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -27,11 +27,15 @@ export default function AuthModal() {
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleEscape);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
+      // Restore body scroll when modal is closed
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, closeModal]);
 
@@ -39,24 +43,35 @@ export default function AuthModal() {
 
   return (
     <AnimatePresence>
-    <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 2 }}
-    exit={{ opacity: 0 }}
-    className="fixed inset-0 z-50 overflow-y-auto"
-  >
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Blur background */}
-      <div className="fixed inset-0  bg-opacity-50 " />
-      
-      {/* Modal container */}
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div ref={modalRef} className="relative w-full max-w-lg">
-          <AuthForm isLogin={type === 'login'} onClose={closeModal} />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 overflow-y-auto"
+      >
+        {/* Backdrop */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm"
+          onClick={closeModal}
+        />
+        
+        {/* Modal container */}
+        <div className="flex min-h-full items-center justify-center p-4">
+          <motion.div
+            ref={modalRef}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: "spring", duration: 0.3 }}
+            className="relative w-full max-w-md"
+          >
+            <AuthForm isLogin={type === 'login'} onClose={closeModal} />
+          </motion.div>
         </div>
-      </div>
-    </div>
-    </motion.div>
+      </motion.div>
     </AnimatePresence>
   );
 }

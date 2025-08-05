@@ -3,19 +3,8 @@ import Property from '@/models/Property';
 import { dbConnect } from '@/lib/dbConnect';
 import { SearchBar } from '@/components/SearchBar';
 import { FilterSidebar } from '@/components/FilterSidebar';
-
-// export default async function HomePage({
-//   searchParams,
-// }: {
-//   searchParams?: {
-//     query?: string;
-//     location?: string;
-//     minPrice?: string;
-//     maxPrice?: string;
-//     bedrooms?: string;
-//     propertyType?: string;
-//   };
-// }) {
+import { Button } from '@/components/ui/button';
+import { MapPin, Star, TrendingUp, Shield, Heart } from 'lucide-react';
 
 export default async function HomePage({
   searchParams,
@@ -65,58 +54,123 @@ export default async function HomePage({
     })));
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <div className="bg-background">
       {/* Hero Section with Search */}
-      <section className="mb-12">
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl p-8 text-white">
-          <h1 className="text-4xl font-bold mb-4">Find Your Perfect Stay</h1>
-          <p className="text-xl mb-6">Discover amazing properties for your next trip</p>
-          <SearchBar />
+      <section className="relative bg-gradient-to-br from-primary/10 via-primary/5 to-background py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+              Find Your Perfect
+              <span className="text-primary block">Stay</span>
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+              Discover amazing properties for your next trip. From cozy apartments to luxury villas, 
+              find the perfect accommodation that fits your style and budget.
+            </p>
+            <SearchBar />
+          </div>
+
+          {/* Features */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <MapPin className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Prime Locations</h3>
+              <p className="text-muted-foreground">Properties in the most sought-after locations</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Shield className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Verified Properties</h3>
+              <p className="text-muted-foreground">All properties are verified and safe</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Heart className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Best Prices</h3>
+              <p className="text-muted-foreground">Competitive prices for every budget</p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Main Content */}
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Filters Sidebar */}
-        <aside className="lg:w-1/4">
-          <FilterSidebar />
-        </aside>
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Filters Sidebar */}
+            <aside className="lg:w-1/4">
+              <div className="sticky top-24">
+                <div className="bg-card border rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-4">Filters</h3>
+                  <FilterSidebar />
+                </div>
+              </div>
+            </aside>
 
-        {/* Properties Grid */}
-        <section className="lg:w-3/4">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">
-              {properties.length} {properties.length === 1 ? 'Property' : 'Properties'} Available
-            </h2>
-            {/* Sorting options can be added here */}
+            {/* Properties Grid */}
+            <section className="lg:w-3/4">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">
+                    {properties.length} {properties.length === 1 ? 'Property' : 'Properties'} Available
+                  </h2>
+                  <p className="text-muted-foreground mt-1">
+                    Find the perfect place for your next adventure
+                  </p>
+                </div>
+                <Button variant="outline" className="hidden md:flex">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Sort by
+                </Button>
+              </div>
+
+              {properties.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-medium mb-2 text-foreground">No properties found</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Try adjusting your search or filters to find what you're looking for
+                  </p>
+                  <Button onClick={() => window.location.href = '/'}>
+                    Clear Filters
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {properties.map((property) => (
+                    <PropertyCard
+                      key={property._id}
+                      property={{
+                        ...property,
+                        media: property.media.map((m) => ({
+                          ...m,
+                          type: m.type as "image" | "video"
+                        })),
+                      }}
+                      editable={false}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Load More Button */}
+              {properties.length > 0 && (
+                <div className="text-center mt-12">
+                  <Button variant="outline" size="lg">
+                    Load More Properties
+                  </Button>
+                </div>
+              )}
+            </section>
           </div>
-
-          {properties.length === 0 ? (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-medium mb-2">No properties found</h3>
-              <p className="text-muted-foreground">
-                Try adjusting your search or filters
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {properties.map((property) => (
-                <PropertyCard
-  key={property._id}
-  property={{
-    ...property,
-    media: property.media.map((m) => ({
-      ...m,
-      type: m.type as "image" | "video"
-    })),
-  }}
-  editable={false}
-/>
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-    </main>
+        </div>
+      </section>
+    </div>
   );
 }

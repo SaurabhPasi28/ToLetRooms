@@ -4,14 +4,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { X, Filter, Home, Building2, Mountain, Umbrella, TreePine } from 'lucide-react';
 
 const propertyTypes = [
-  'Apartment',
-  'House',
-  'Villa',
-  'Cabin',
-  'Beachfront',
-  'Countryside'
+  { value: 'Apartment', icon: Building2, label: 'Apartment' },
+  { value: 'House', icon: Home, label: 'House' },
+  { value: 'Villa', icon: Building2, label: 'Villa' },
+  { value: 'Cabin', icon: TreePine, label: 'Cabin' },
+  { value: 'Beachfront', icon: Umbrella, label: 'Beachfront' },
+  { value: 'Countryside', icon: Mountain, label: 'Countryside' }
 ];
 
 export function FilterSidebar() {
@@ -28,10 +31,56 @@ export function FilterSidebar() {
     router.replace(`/?${params.toString()}`);
   };
 
+  const clearFilters = () => {
+    router.replace('/');
+  };
+
+  const hasActiveFilters = searchParams.get('location') || 
+                          searchParams.get('minPrice') || 
+                          searchParams.get('maxPrice') || 
+                          searchParams.get('bedrooms') || 
+                          searchParams.get('propertyType');
+
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="font-medium mb-3">Location</h3>
+      {/* Active Filters */}
+      {hasActiveFilters && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-medium text-foreground">Active Filters</h4>
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {searchParams.get('location') && (
+              <Badge variant="secondary" className="gap-1">
+                Location: {searchParams.get('location')}
+                <X className="w-3 h-3 cursor-pointer" onClick={() => handleFilterChange('location', '')} />
+              </Badge>
+            )}
+            {searchParams.get('propertyType') && (
+              <Badge variant="secondary" className="gap-1">
+                Type: {searchParams.get('propertyType')}
+                <X className="w-3 h-3 cursor-pointer" onClick={() => handleFilterChange('propertyType', '')} />
+              </Badge>
+            )}
+            {(searchParams.get('minPrice') || searchParams.get('maxPrice')) && (
+              <Badge variant="secondary" className="gap-1">
+                Price: ₹{searchParams.get('minPrice') || '0'} - ₹{searchParams.get('maxPrice') || '∞'}
+                <X className="w-3 h-3 cursor-pointer" onClick={() => {
+                  handleFilterChange('minPrice', '');
+                  handleFilterChange('maxPrice', '');
+                }} />
+              </Badge>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Location Filter */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">Location</Label>
         <Input
           placeholder="City or area"
           defaultValue={searchParams.get('location')?.toString()}
@@ -39,9 +88,10 @@ export function FilterSidebar() {
         />
       </div>
 
-      <div>
-        <h3 className="font-medium mb-3">Price Range</h3>
-        <div className="flex gap-2 mb-2">
+      {/* Price Range Filter */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">Price Range (₹)</Label>
+        <div className="flex gap-2">
           <Input
             placeholder="Min"
             type="number"
@@ -57,47 +107,60 @@ export function FilterSidebar() {
         </div>
       </div>
 
-      <div>
-        <h3 className="font-medium mb-3">Bedrooms</h3>
+      {/* Bedrooms Filter */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">Bedrooms</Label>
         <Slider
           defaultValue={[Number(searchParams.get('bedrooms')) || 1]}
           min={1}
           max={10}
           step={1}
           onValueChange={(value) => handleFilterChange('bedrooms', value[0].toString())}
+          className="w-full"
         />
-        <div className="text-center mt-2">
+        <div className="text-center text-sm text-muted-foreground">
           {searchParams.get('bedrooms') || 1}+ bedrooms
         </div>
       </div>
 
-      <div>
-        <h3 className="font-medium mb-3">Property Type</h3>
+      {/* Property Type Filter */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">Property Type</Label>
         <div className="space-y-2">
-          {propertyTypes.map((type) => (
-            <div key={type} className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id={type}
-                name="propertyType"
-                value={type}
-                checked={searchParams.get('propertyType') === type}
-                onChange={(e) => handleFilterChange('propertyType', e.target.value)}
-                className="h-4 w-4"
-              />
-              <label htmlFor={type}>{type}</label>
-            </div>
-          ))}
+          {propertyTypes.map((type) => {
+            const Icon = type.icon;
+            return (
+              <div key={type.value} className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id={type.value}
+                  name="propertyType"
+                  value={type.value}
+                  checked={searchParams.get('propertyType') === type.value}
+                  onChange={(e) => handleFilterChange('propertyType', e.target.value)}
+                  className="h-4 w-4 text-primary focus:ring-primary border-border"
+                />
+                <label htmlFor={type.value} className="flex items-center gap-2 text-sm cursor-pointer">
+                  <Icon className="w-4 h-4" />
+                  {type.label}
+                </label>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      <Button
-        variant="outline"
-        onClick={() => router.replace('/')}
-        className="w-full"
-      >
-        Clear Filters
-      </Button>
+      {/* Clear Filters Button */}
+      {hasActiveFilters && (
+        <Button
+          variant="outline"
+          onClick={clearFilters}
+          className="w-full"
+        >
+          <Filter className="w-4 h-4 mr-2" />
+          Clear All Filters
+        </Button>
+      )}
     </div>
   );
 }
