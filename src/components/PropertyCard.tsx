@@ -1,3 +1,4 @@
+"use client"
 import Image from 'next/image'
 import { HeartIcon, StarIcon } from '@heroicons/react/24/solid'
 
@@ -16,9 +17,9 @@ interface Property {
 
 export default function PropertyCard({ property }: { property: Property }) {
   return (
-    <div className="group cursor-pointer">
+    <div className="group cursor-pointer ">
       {/* Image with favorite button */}
-      <div className="relative aspect-square overflow-hidden rounded-xl">
+      <div className="relative aspect-square overflow-hidden rounded-xl ">
         <Image
           src={property.image}
           alt={property.title}

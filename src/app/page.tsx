@@ -45,12 +45,20 @@ export default async function HomePage({
     .sort({ createdAt: -1 })
     .lean()
     .then(docs => docs.map(doc => ({
-      ...doc,
       _id: doc._id.toString(),
+      title: doc.title,
+      isActive: doc.isActive,
+      address: {
+        city: doc.address.city,
+        state: doc.address.state
+      },
+      maxGuests: doc.maxGuests,
+      bedrooms: doc.bedrooms,
+      price: doc.price,
       media: doc.media?.map((url: string) => ({
         url,
         type: url.match(/\.(mp4|mov|avi|webm)$/i) ? 'video' : 'image'
-      }))
+      })) || []
     })));
 
   return (

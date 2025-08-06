@@ -5,8 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from 'react-hot-toast';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { AuthModalProvider } from '@/components/auth/AuthModalContext';
-import AuthModal from "@/components/auth/AuthModal";
+import ClientWrapper from "@/components/ClientWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,24 +30,23 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <AuthModalProvider>
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-        <Toaster position="top-right" />
-        <div className="flex min-h-screen flex-col">
-          <Navbar/>
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-        </div>
-          </ThemeProvider>
-          <AuthModal/>
-          </AuthModalProvider>
+        <ClientWrapper>
+          <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+          <Toaster position="top-right" />
+          <div className="flex min-h-screen flex-col">
+            <Navbar/>
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
+            </ThemeProvider>
+        </ClientWrapper>
       </body>
     </html>
   );

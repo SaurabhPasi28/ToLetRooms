@@ -141,13 +141,13 @@ export default function UserMenu({ isLoggedIn, user }: { isLoggedIn: boolean; us
                 <Menu.Item>
                   {({ active }) => (
                     <Link 
-                      href="/account" 
+                      href="/profile" 
                       className={`${
                         active ? 'bg-accent' : ''
                       } flex items-center px-4 py-2 text-sm text-foreground`}
                     >
-                      <Settings className="mr-3 h-4 w-4" />
-                      Account Settings
+                      <User className="mr-3 h-4 w-4" />
+                      Profile Settings
                     </Link>
                   )}
                 </Menu.Item>

@@ -1,24 +1,3 @@
-// import { NextRequest, NextResponse } from 'next/server';
-// import { generateUploadSignature } from '@/lib/cloudinary';
-
-// export async function GET(request: NextRequest) {
-//   try {
-//     const { searchParams } = new URL(request.url);
-//     const folder = searchParams.get('folder') || undefined;
-//     const uploadPreset = searchParams.get('uploadPreset') || undefined;
-    
-//     const signatureData = await generateUploadSignature(uploadPreset, folder);
-//     return NextResponse.json(signatureData);
-//   } catch (error: any) {
-//     console.error('Signature error:', error);
-//     return NextResponse.json(
-//       { error: 'Failed to generate signature' },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';

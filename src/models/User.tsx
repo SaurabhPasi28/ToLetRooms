@@ -8,6 +8,16 @@ interface IUser extends Document {
   phone?: string;
   googleId?: string;
   role: string;
+  profilePicture?: string;
+  bio?: string;
+  dateOfBirth?: Date;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -53,6 +63,27 @@ const userSchema = new Schema<IUser>({
     type: String, 
     enum: ['tenant', 'host'], 
     default: 'tenant' 
+  },
+  profilePicture: {
+    type: String,
+    default: null
+  },
+  bio: {
+    type: String,
+    maxlength: [500, 'Bio cannot exceed 500 characters']
+  },
+  dateOfBirth: {
+    type: Date
+  },
+  address: {
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String,
+    country: {
+      type: String,
+      default: 'India'
+    }
   }
 }, { 
   timestamps: true,

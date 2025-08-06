@@ -3,8 +3,9 @@
 import { MapPin, Star, Users, ChevronLeft, ChevronRight, Calendar, Heart, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,9 +30,82 @@ export default function PropertyCard({ property, editable = false }: {
   editable?: boolean;
 }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Check if property is in user's wishlist on component mount
+  useEffect(() => {
+    const checkWishlistStatus = async () => {
+      if (!session?.user) return;
+      
+      try {
+        const response = await fetch('/api/wishlist');
+        if (response.ok) {
+          const data = await response.json();
+          const isInWishlist = data.wishlist.some(
+            (item: any) => item.propertyId._id === property._id
+          );
+          setIsFavorite(isInWishlist);
+        }
+      } catch (error) {
+        console.error('Error checking wishlist status:', error);
+      }
+    };
+
+    checkWishlistStatus();
+  }, [session?.user, property._id]);
+
+  const handleWishlistToggle = async () => {
+    if (!session?.user) {
+      toast.error('Please login to add properties to your wishlist');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      if (isFavorite) {
+        // Remove from wishlist
+        const response = await fetch(`/api/wishlist?propertyId=${property._id}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          setIsFavorite(false);
+          toast.success('Removed from wishlist');
+        } else {
+          throw new Error('Failed to remove from wishlist');
+        }
+      } else {
+        // Add to wishlist
+        const response = await fetch('/api/wishlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ propertyId: property._id })
+        });
+        
+        if (response.ok) {
+          setIsFavorite(true);
+          toast.success('Added to wishlist');
+        } else {
+          const error = await response.json();
+          if (error.error === 'Property already in wishlist') {
+            setIsFavorite(true);
+            toast.success('Already in wishlist');
+          } else {
+            throw new Error(error.error || 'Failed to add to wishlist');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      toast.error('Failed to update wishlist');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handlePrev = () => {
     setCurrentMediaIndex(prev => 
@@ -54,34 +128,24 @@ export default function PropertyCard({ property, editable = false }: {
   };
 
   const handleDelete = async () => {
-    if (confirm('Are you sure you want to delete this property?')) {
+    if (confirm('Are you sure you want to delete this property? This will also remove all associated images.')) {
       try {
-        const deleteMediaPromises = property.media!.map(async (media) => {
-          const publicId = media.url.split('/').pop()?.split('.')[0];
-          if (!publicId) return;
-          
-          await fetch('/api/sign-upload/delete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ publicId })
-          });
-        });
-
-        await Promise.all(deleteMediaPromises);
-
+        // Delete the property directly (the API will handle Cloudinary cleanup)
         const response = await fetch(`/api/properties/${property._id}`, {
           method: 'DELETE'
         });
         
         if (response.ok) {
-          toast.success('Property deleted');
-          router.refresh();
+          toast.success('Property deleted successfully');
+          // Refresh the page to update the list
+          window.location.reload();
         } else {
-          throw new Error('Delete failed');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to delete property');
         }
       } catch (error) {
-        console.log(error);
-        toast.error('Failed to delete property');
+        console.error('Error deleting property:', error);
+        toast.error(error instanceof Error ? error.message : 'Failed to delete property');
       }
     }
   };
@@ -103,9 +167,9 @@ export default function PropertyCard({ property, editable = false }: {
   const currentMedia = property.media?.[currentMediaIndex];
 
   return (
-    <div className="group relative bg-background border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+    <div className="group relative bg-background border-4   rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
       <Link href={`/property/${property._id}`} className="block">
-        <div className="relative aspect-video bg-muted">
+        <div className="relative aspect-video bg-muted ">
           {property.media?.length ? (
             <>
               {currentMedia?.type === 'image' ? (
@@ -192,9 +256,9 @@ export default function PropertyCard({ property, editable = false }: {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    setIsFavorite(!isFavorite);
-                    toast.success(isFavorite ? 'Removed from favorites' : 'Added to favorites');
+                    handleWishlistToggle();
                   }}
+                  disabled={isLoading}
                 >
                   <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
                 </Button>

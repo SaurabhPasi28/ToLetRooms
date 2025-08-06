@@ -1,8 +1,9 @@
+"use client"
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function PropertyCardSkeleton() {
   return (
-    <div className="bg-background border rounded-xl overflow-hidden shadow-sm">
+    <div className="bg-background border rounded-xl  overflow-hidden shadow-sm">
       <div className="relative aspect-video bg-muted">
         <Skeleton className="w-full h-full" />
       </div>

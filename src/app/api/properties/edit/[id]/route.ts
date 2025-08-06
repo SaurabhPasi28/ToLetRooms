@@ -22,19 +22,35 @@ export async function GET(
       _id: id,
       host: session.user.id
     }).lean();
-    console.log("--------->Propety",property)
+
     if (!property) {
       return NextResponse.json({ error: 'Property not found' }, { status: 404 });
     }
 
+    // Serialize the property data
     const propertyData = {
-      ...property,
       _id: property._id.toString(),
+      title: property.title,
+      description: property.description,
+      price: property.price,
+      propertyType: property.propertyType,
+      address: {
+        street: property.address.street,
+        city: property.address.city,
+        state: property.address.state,
+        pinCode: property.address.pinCode,
+        areaOrLocality: property.address.areaOrLocality || '',
+        houseNumber: property.address.houseNumber || ''
+      },
+      media: property.media || [],
+      amenities: property.amenities || [],
+      maxGuests: property.maxGuests,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      isActive: property.isActive,
       host: property.host.toString(),
-      availability: {
-        startDate: property.availability?.startDate?.toISOString().split('T')[0] || '',
-        endDate: property.availability?.endDate?.toISOString().split('T')[0] || ''
-      }
+      createdAt: property.createdAt,
+      updatedAt: property.updatedAt
     };
 
     return NextResponse.json(propertyData);

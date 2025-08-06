@@ -41,20 +41,22 @@ export default async function HostPropertiesPage() {
   const properties = await Property.find({ host: session.user.id })
     .sort({ createdAt: -1 })
     .lean()
-    .then(docs => docs.map(doc => {
-      // Convert Mongoose document to plain object and transform images to media
-      console.log("------------->doc",doc)
-      const property = {
-        ...doc,
-        _id: doc._id.toString(),
-        media: doc.media?.map((url: string) => ({
-          url,
-          type: url.match(/\.(mp4|mov|avi|webm)$/i) ? 'video' : 'image'
-        }))
-      };
-      // console.log("-------------->propety",property)
-      return property as PropertyData;
-    }));
+    .then(docs => docs.map(doc => ({
+      _id: doc._id.toString(),
+      title: doc.title,
+      isActive: doc.isActive,
+      address: {
+        city: doc.address.city,
+        state: doc.address.state
+      },
+      maxGuests: doc.maxGuests,
+      bedrooms: doc.bedrooms,
+      price: doc.price,
+      media: doc.media?.map((url: string) => ({
+        url,
+        type: url.match(/\.(mp4|mov|avi|webm)$/i) ? 'video' : 'image'
+      })) || []
+    } as PropertyData)));
 
   return (
     <div className="container mx-auto px-4 py-8">
