@@ -80,25 +80,49 @@ export async function DELETE(
       return NextResponse.json({ error: 'Property not found' }, { status: 404 });
     }
 
-    // Extract public IDs from media URLs for Cloudinary deletion
-    const publicIds: string[] = [];
+    // Separate images and videos for proper deletion
+    const imagePublicIds: string[] = [];
+    const videoPublicIds: string[] = [];
+    
     if (property.media && Array.isArray(property.media)) {
       for (const mediaUrl of property.media) {
         const publicId = extractPublicIdFromUrl(mediaUrl);
         if (publicId) {
-          publicIds.push(publicId);
+          // Determine if it's a video based on file extension
+          const isVideo = mediaUrl.match(/\.(mp4|mov|avi|webm|mkv|flv|wmv)$/i);
+          if (isVideo) {
+            videoPublicIds.push(publicId);
+          } else {
+            imagePublicIds.push(publicId);
+          }
         }
       }
     }
 
-    // Delete files from Cloudinary
-    if (publicIds.length > 0) {
+    console.log('Deleting media files:', {
+      images: imagePublicIds.length,
+      videos: videoPublicIds.length,
+      imageIds: imagePublicIds,
+      videoIds: videoPublicIds
+    });
+
+    // Delete images from Cloudinary
+    if (imagePublicIds.length > 0) {
       try {
-        await deleteManyFromCloudinary(publicIds, 'image');
-        console.log(`Deleted ${publicIds.length} files from Cloudinary:`, publicIds);
+        await deleteManyFromCloudinary(imagePublicIds, 'image');
+        console.log(`Deleted ${imagePublicIds.length} images from Cloudinary`);
       } catch (cloudinaryError) {
-        console.error('Error deleting from Cloudinary:', cloudinaryError);
-        // Continue with database deletion even if Cloudinary deletion fails
+        console.error('Error deleting images from Cloudinary:', cloudinaryError);
+      }
+    }
+
+    // Delete videos from Cloudinary
+    if (videoPublicIds.length > 0) {
+      try {
+        await deleteManyFromCloudinary(videoPublicIds, 'video');
+        console.log(`Deleted ${videoPublicIds.length} videos from Cloudinary`);
+      } catch (cloudinaryError) {
+        console.error('Error deleting videos from Cloudinary:', cloudinaryError);
       }
     }
 
@@ -111,7 +135,8 @@ export async function DELETE(
 
     return NextResponse.json({ 
       message: 'Property deleted successfully',
-      deletedFiles: publicIds.length
+      deletedImages: imagePublicIds.length,
+      deletedVideos: videoPublicIds.length
     });
   } catch (error) {
     console.error('Error deleting property:', error);

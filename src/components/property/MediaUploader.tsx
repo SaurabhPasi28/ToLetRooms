@@ -67,17 +67,29 @@ export default function MediaUploader({
         formData.append('file', file);
         formData.append('folder', 'properties');
 
+        console.log('Uploading file:', {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          isVideo: file.type.startsWith('video/'),
+          isImage: file.type.startsWith('image/')
+        });
+
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });
 
+        const responseData = await response.json();
+        console.log('Upload response:', responseData);
+
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `Upload failed: ${response.status}`);
+          const errorMessage = responseData.error || responseData.details || `Upload failed: ${response.status}`;
+          console.error('Upload failed:', errorMessage);
+          throw new Error(errorMessage);
         }
         
-        return await response.json();
+        return responseData;
       });
 
       const results = await Promise.all(uploadPromises);
@@ -94,7 +106,8 @@ export default function MediaUploader({
       toast.success(`Successfully uploaded ${results.length} file(s)`);
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('Failed to upload files. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload files. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setIsUploading(false);
       // Reset input
@@ -102,25 +115,32 @@ export default function MediaUploader({
     }
   };
 
-  const handleDelete = async (publicId: string, url: string, e: React.MouseEvent) => {
+  const handleDelete = async (publicId: string, url: string, fileType: 'image' | 'video', e: React.MouseEvent) => {
     e.preventDefault(); // Prevent form submission
     e.stopPropagation(); // Prevent event bubbling
     
     try {
+      // Determine resource type based on file type
+      const resourceType = fileType === 'video' ? 'video' : 'image';
+      
+      console.log('Deleting file:', { publicId, url, resourceType });
+      
       const response = await fetch('/api/upload', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           publicId, 
           url,
-          resourceType: 'image'
+          resourceType
         })
       });
       
       const result = await response.json();
+      console.log('Delete response:', result);
       
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to delete file');
+        const errorMessage = result.error || result.details || 'Failed to delete file';
+        throw new Error(errorMessage);
       }
       
       // Update local state
@@ -131,7 +151,8 @@ export default function MediaUploader({
       toast.success('File deleted successfully');
     } catch (error) {
       console.error('Delete failed:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to delete file');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete file';
+      toast.error(errorMessage);
     }
   };
 
@@ -176,7 +197,7 @@ export default function MediaUploader({
               )}
               <button
                 type="button"
-                onClick={(e) => handleDelete(file.publicId, file.url, e)}
+                onClick={(e) => handleDelete(file.publicId, file.url, file.type, e)}
                 className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
                 title="Delete this file"
               >

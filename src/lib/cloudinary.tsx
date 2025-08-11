@@ -19,17 +19,30 @@ function detectFileType(buffer: Buffer): string {
     'R0lGODlh': 'image/gif',
     'UklGRg==': 'image/webp',
     'AAABAAE': 'image/ico',
-    'AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAA': 'video/mp4',
-    'AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAA': 'video/mov',
+    // Video signatures - check for MP4/MOV file signatures
+    'ftypmp4': 'video/mp4',
+    'ftypiso': 'video/mp4',
+    'ftypM4V': 'video/mp4',
+    'ftypqt': 'video/mov',
+    'ftyp3gp': 'video/3gp',
+    'ftypMSNV': 'video/mp4',
+    'ftypisom': 'video/mp4',
   };
 
   const base64 = buffer.toString('base64');
   
   for (const [signature, mimeType] of Object.entries(signatures)) {
     if (base64.startsWith(signature)) {
+      console.log('Detected file type:', mimeType, 'for signature:', signature);
       return mimeType;
     }
   }
+  
+  // If we can't detect the type, try to infer from the first few bytes
+  const firstBytes = buffer.slice(0, 12);
+  const hexString = firstBytes.toString('hex');
+  
+  console.log('Could not detect file type from signatures. First bytes:', hexString);
   
   // Default to image/jpeg if we can't detect
   return 'image/jpeg';
@@ -114,6 +127,7 @@ export async function uploadToCloudinary(
     let fileData: string;
     if (Buffer.isBuffer(file)) {
       const fileType = detectFileType(file);
+      console.log('Detected file type for upload:', fileType);
       fileData = `data:${fileType};base64,${file.toString('base64')}`;
     } else {
       fileData = file;
@@ -130,7 +144,8 @@ export async function uploadToCloudinary(
     console.log('Cloudinary upload successful:', {
       public_id: result.public_id,
       secure_url: result.secure_url,
-      format: result.format
+      format: result.format,
+      resource_type: result.resource_type
     });
 
     return {
@@ -214,7 +229,10 @@ export function extractPublicIdFromUrl(url: string): string | null {
 }
 
 /**
- * Delete multiple files from Cloudinary
+ * Delete multiple files from Cloudinary with automatic resource type detection
+ * @param publicIds - Array of public IDs to delete
+ * @param resourceType - Type of resource ('image', 'video', 'raw', 'auto')
+ * @returns Deletion result
  */
 export async function deleteManyFromCloudinary(publicIds: string[], resourceType: string = 'image') {
   try {
@@ -226,17 +244,43 @@ export async function deleteManyFromCloudinary(publicIds: string[], resourceType
       };
     }
 
-    const result = await cloudinary.api.delete_resources(publicIds, {
-      resource_type: resourceType
-    });
-    
-    console.log('Cloudinary bulk delete result:', result);
-    
-    return {
-      success: Object.keys(result.deleted).length > 0,
-      deleted: result.deleted,
-      not_found: result.not_found,
-    };
+    // If resourceType is 'auto', we need to detect and delete separately
+    if (resourceType === 'auto') {
+      const imageIds: string[] = [];
+      const videoIds: string[] = [];
+      
+      // For now, we'll try to delete all as images first, then as videos
+      // This is a fallback approach since we don't have the original URLs
+      
+      const imageResult = await cloudinary.api.delete_resources(imageIds.length > 0 ? imageIds : publicIds, {
+        resource_type: 'image'
+      });
+      
+      const videoResult = await cloudinary.api.delete_resources(videoIds.length > 0 ? videoIds : publicIds, {
+        resource_type: 'video'
+      });
+      
+      console.log('Cloudinary mixed delete result:', { imageResult, videoResult });
+      
+      return {
+        success: Object.keys(imageResult.deleted).length > 0 || Object.keys(videoResult.deleted).length > 0,
+        deleted: { ...imageResult.deleted, ...videoResult.deleted },
+        not_found: { ...imageResult.not_found, ...videoResult.not_found },
+      };
+    } else {
+      // Use the specified resource type
+      const result = await cloudinary.api.delete_resources(publicIds, {
+        resource_type: resourceType
+      });
+      
+      console.log('Cloudinary bulk delete result:', result);
+      
+      return {
+        success: Object.keys(result.deleted).length > 0,
+        deleted: result.deleted,
+        not_found: result.not_found,
+      };
+    }
   } catch (error) {
     console.error('Error deleting multiple files from Cloudinary:', error);
     throw new Error('Failed to delete files from Cloudinary');

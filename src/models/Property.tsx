@@ -122,6 +122,40 @@ const propertySchema = new Schema<IProperty>({
   } 
 });
 
+// Create search indexes for optimal performance
+propertySchema.index({ 
+  'address.city': 'text', 
+  'address.state': 'text', 
+  'address.areaOrLocality': 'text',
+  'address.street': 'text',
+  'address.landmark': 'text',
+  'address.pinCode': 'text',
+  title: 'text',
+  description: 'text'
+}, {
+  weights: {
+    'address.city': 10,
+    'address.state': 8,
+    'address.areaOrLocality': 9,
+    'address.street': 7,
+    'address.landmark': 6,
+    'address.pinCode': 5,
+    title: 4,
+    description: 2
+  },
+  name: 'search_index'
+});
+
+// Geospatial index for location-based searches
+propertySchema.index({ 'address.coordinates': '2dsphere' });
+
+// Compound indexes for common query patterns
+propertySchema.index({ isActive: 1, price: 1 });
+propertySchema.index({ isActive: 1, propertyType: 1 });
+propertySchema.index({ isActive: 1, 'address.city': 1 });
+propertySchema.index({ isActive: 1, maxGuests: 1 });
+propertySchema.index({ isActive: 1, bedrooms: 1 });
+
 // Create the model type
 type PropertyModel = Model<IProperty>;
 
