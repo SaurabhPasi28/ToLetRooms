@@ -39,7 +39,46 @@
     @apply border border-gray-300 hover:bg-gray-50 text-gray-700 py-2 px-4 rounded-md transition-colors;
   }
 
-  @theme inline {
+/* Custom animations for filter button */
+@keyframes filter-blink {
+  0%, 50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  25%, 75% {
+    opacity: 0.3;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes filter-ring-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.filter-blink {
+  animation: filter-blink 1s ease-in-out infinite;
+}
+
+.filter-ring-pulse {
+  animation: filter-ring-pulse 2s ease-in-out infinite;
+}
+
+@theme inline {
 
     --radius-sm: calc(var(--radius) - 4px);
 
