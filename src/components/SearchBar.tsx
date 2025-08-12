@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, MapPin, Calendar, Users, X, Loader2 } from 'lucide-react';
+import { Search, MapPin, Calendar, Users, Loader2 } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

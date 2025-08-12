@@ -3,9 +3,11 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import UserMenu from '@/components/UserMenu';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { Search, Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuthModal } from '@/components/auth/AuthModalContext';
+// import { Search, Menu, X } from 'lucide-react';
+import { Search } from 'lucide-react';
+
+// import { Button } from '@/components/ui/button';
+// import { useAuthModal } from '@/components/auth/AuthModalContext';
 import MobileNav from '@/components/MobileNav';
 
 export default async function Navbar() {

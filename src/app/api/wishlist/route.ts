@@ -26,7 +26,7 @@ export async function GET() {
 
     // Serialize the data properly
     const serializedWishlist = wishlistItems.map(item => ({
-      _id: item._id.toString(),
+      // _id: item._id.toString(),
       userId: item.userId.toString(),
       propertyId: item.propertyId ? {
         _id: item.propertyId._id.toString(),

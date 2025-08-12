@@ -9,7 +9,9 @@ import { Button } from '@/components/ui/button';
 import PropertyForm from '@/components/property/PropertyForm';
 
 export default function EditPropertyPage() {
-  const { data: session, status } = useSession();
+  const {  status } = useSession();
+  // const { data: session, status } = useSession();
+
   const router = useRouter();
   const params = useParams();
   const [property, setProperty] = useState(null);
@@ -63,7 +65,7 @@ export default function EditPropertyPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Property Not Found</h2>
           <p className="text-muted-foreground mb-4">
-            The property you're looking for doesn't exist or you don't have permission to edit it.
+            The property you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to edit it.
           </p>
           <Button onClick={() => router.push('/properties/listed')}>
             <ArrowLeft className="w-4 h-4 mr-2" />

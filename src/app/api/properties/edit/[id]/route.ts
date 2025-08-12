@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { dbConnect } from '@/lib/dbConnect';
 import Property from '@/models/Property';
-import { deleteFromCloudinary, deleteManyFromCloudinary, extractPublicIdFromUrl } from '@/lib/cloudinary';
+import { deleteManyFromCloudinary, extractPublicIdFromUrl } from '@/lib/cloudinary';
 
 // GET - Get property details
 export async function GET(

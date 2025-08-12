@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import PropertyCard from '@/components/property/PropertyCard';
 import { SearchBar } from '@/components/SearchBar';
@@ -39,7 +39,7 @@ interface Property {
 
 export function SearchWrapper() {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  // const router = useRouter();
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [totalResults, setTotalResults] = useState(0);

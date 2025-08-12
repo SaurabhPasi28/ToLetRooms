@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { Camera, User, Mail, Phone, MapPin, Calendar, Edit3, Save, X } from 'lucide-react';
-import Image from 'next/image';
+// import { Camera, User, Mail, Phone, MapPin, Calendar, Edit3, Save, X } from 'lucide-react';
+import { Camera, User, Calendar, Edit3, X } from 'lucide-react';
+
+// import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,14 +34,33 @@ interface UserProfile {
   createdAt: string;
 }
 
+
+
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
+  // const { data: session, status } = useSession();
+  const {  status } = useSession();
+
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [formData, setFormData] = useState({
+
+  type FormData = {
+  name: string;
+  phone: string;
+  bio: string;
+  dateOfBirth: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+};
+
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     phone: '',
     bio: '',
@@ -92,12 +113,13 @@ export default function ProfilePage() {
 
   const handleInputChange = (field: string, value: string) => {
     if (field.includes('.')) {
-      const [parent, child] = field.split('.');
+      // const [parent, child] = field.split('.');
+       const [parent, child] = field.split('.') as ['address', keyof FormData['address']];
       setFormData(prev => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof typeof prev],
-          [child]: value
+          ...prev[parent],
+          [child]: value,
         }
       }));
     } else {

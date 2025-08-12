@@ -2,11 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Heart, MapPin, Users, Star, Calendar, Trash2 } from 'lucide-react';
+import { Heart, Calendar, Trash2 } from 'lucide-react';
+// import { Heart, MapPin, Users, Star, Calendar, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+// import { Badge } from '@/components/ui/badge';
 import PropertyCard from '@/components/property/PropertyCard';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 
@@ -32,7 +33,9 @@ interface WishlistItem {
 }
 
 export default function WishlistPage() {
-  const { data: session, status } = useSession();
+  // const { data: session, status } = useSession();
+  const {  status } = useSession();
+
   const router = useRouter();
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);

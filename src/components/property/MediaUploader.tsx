@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect} from 'react';
 import { Trash2, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
@@ -45,17 +45,34 @@ export default function MediaUploader({
   };
 
   // Initialize with existing images
+
+
+  // useEffect(() => {
+  //   if (!isInitialized && Array.isArray(value)) {
+  //     const initialFiles = value.map(url => ({
+  //       url,
+  //       type: url.match(/\.(mp4|mov|avi|webm)$/i) ? 'video' : 'image',
+  //       publicId: extractPublicIdFromUrl(url) || ''
+  //     }));
+  //     setFiles(initialFiles);
+  //     setIsInitialized(true);
+  //   }
+  // }, [value, isInitialized]);
+
+  const getFileType = (url: string): MediaFile['type'] =>
+  /\.(mp4|mov|avi|webm)$/i.test(url) ? 'video' : 'image';
+
   useEffect(() => {
-    if (!isInitialized && Array.isArray(value)) {
-      const initialFiles = value.map(url => ({
-        url,
-        type: url.match(/\.(mp4|mov|avi|webm)$/i) ? 'video' : 'image',
-        publicId: extractPublicIdFromUrl(url) || ''
-      }));
-      setFiles(initialFiles);
-      setIsInitialized(true);
-    }
-  }, [value, isInitialized]);
+  if (!isInitialized && Array.isArray(value)) {
+    const initialFiles = value.map(url => ({
+      url,
+      type: getFileType(url),
+      publicId: extractPublicIdFromUrl(url) || ''
+    }));
+    setFiles(initialFiles);
+    setIsInitialized(true);
+  }
+}, [value, isInitialized]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
@@ -92,16 +109,28 @@ export default function MediaUploader({
         return responseData;
       });
 
-      const results = await Promise.all(uploadPromises);
-      const newFiles = results.map(result => ({
-        url: result.url,
-        type: result.type === 'video' ? 'video' : 'image',
-        publicId: result.publicId
-      }));
+      // const results = await Promise.all(uploadPromises);
+      // const newFiles = results.map(result => ({
+      //   url: result.url,
+      //   type: result.type === 'video' ? 'video' : 'image',
+      //   publicId: result.publicId
+      // }));
 
-      const updatedFiles = [...files, ...newFiles];
-      setFiles(updatedFiles);
-      onChange(updatedFiles.map(f => f.url));
+      // const updatedFiles = [...files, ...newFiles];
+      // setFiles(updatedFiles);
+      // onChange(updatedFiles.map(f => f.url));
+      const results = await Promise.all(uploadPromises);
+
+const newFiles: MediaFile[] = results.map(result => ({
+  url: result.url,
+  type: result.type === 'video' ? 'video' as const : 'image' as const,
+  publicId: result.publicId
+}));
+
+const updatedFiles = [...files, ...newFiles];
+setFiles(updatedFiles);
+onChange(updatedFiles.map(f => f.url));
+
       
       toast.success(`Successfully uploaded ${results.length} file(s)`);
     } catch (error) {

@@ -1,8 +1,162 @@
-'use client';
+// 'use client';
+
+// import { useState, useEffect } from 'react';
+// import { useRouter } from 'next/navigation';
+// import { useForm,Path } from 'react-hook-form';
+// import { zodResolver } from '@hookform/resolvers/zod';
+// import { z } from 'zod';
+// import { toast } from 'react-hot-toast';
+// import { FormStepper } from "@/components/ui/FormStepper";
+// import MediaUploader from '@/components/property/MediaUploader';
+// import { Button } from '@/components/ui/button';
+// import { Input } from '@/components/ui/input';
+// import { Label } from '@/components/ui/label';
+// import { Textarea } from '@/components/ui/textarea';
+
+// const formSchema = z.object({
+//   title: z.string().min(10, "Title must be at least 10 characters"),
+//   description: z.string().min(50, "Description needs 50+ characters"),
+//   propertyType: z.enum(['apartment', 'house', 'villa', 'pg', 'hostel']),
+//   address: z.object({
+//     street: z.string().min(2),
+//     city: z.string().min(2),
+//     state: z.string().min(2),
+//     pinCode: z.string().length(6),
+//     areaOrLocality: z.string().optional(),
+//     houseNumber: z.string().optional(),
+//   }),
+//   price: z.number().min(500).max(100000),
+//   bedrooms: z.number().min(1),
+//   bathrooms: z.number().min(1),
+//   maxGuests: z.number().min(1),
+//   amenities: z.array(z.string()).optional(),
+//   media: z.array(z.string().url()).min(1, "At least 1 image is required")
+// });
+
+// type FormData = z.infer<typeof formSchema>;
+
+// interface PropertyFormProps {
+//   initialData?: any;
+//   isEditMode?: boolean;
+// }
+
+// export default function PropertyForm({ initialData, isEditMode = false }: PropertyFormProps) {
+//   const [step, setStep] = useState(1);
+//   const [media, setMedia] = useState<string[]>([]);
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+//   const router = useRouter();
+  
+//   const {
+//     register,
+//     handleSubmit,
+//     trigger,
+//     formState: { errors },
+//     setValue,
+//     reset
+//   } = useForm<FormData>({
+//     resolver: zodResolver(formSchema),
+//     defaultValues: {
+//       propertyType: 'apartment',
+//       amenities: [],
+//       address: {
+//         areaOrLocality: '',
+//         houseNumber: ''
+//       }
+//     }
+//   });
+
+//   // Set initial form values when initialData changes
+//   useEffect(() => {
+//     if (initialData && isEditMode) {
+//       const defaultValues = {
+//         title: initialData.title || '',
+//         description: initialData.description || '',
+//         propertyType: initialData.propertyType || 'apartment',
+//         address: {
+//           street: initialData.address?.street || '',
+//           city: initialData.address?.city || '',
+//           state: initialData.address?.state || '',
+//           pinCode: initialData.address?.pinCode || '',
+//           areaOrLocality: initialData.address?.areaOrLocality || '',
+//           houseNumber: initialData.address?.houseNumber || ''
+//         },
+//         price: initialData.price || 0,
+//         bedrooms: initialData.bedrooms || 1,
+//         bathrooms: initialData.bathrooms || 1,
+//         maxGuests: initialData.maxGuests || 1,
+//         amenities: Array.isArray(initialData.amenities) ? initialData.amenities : [],
+//         media: Array.isArray(initialData.media) ? initialData.media : []
+//       };
+
+//       reset(defaultValues);
+//       setMedia(Array.isArray(initialData.media) ? initialData.media : []);
+//     }
+//   }, [initialData, isEditMode, reset]);
+
+//   const onSubmit = async (data: FormData) => {
+//     setIsSubmitting(true);
+//     try {
+//       const url = isEditMode 
+//         ? `/api/properties/${initialData._id}`
+//         : '/api/properties';
+      
+//       const method = isEditMode ? 'PUT' : 'POST';
+
+//       const response = await fetch(url, {
+//         method,
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           ...data,
+//           media
+//         })
+//       });
+
+//       if (response.ok) {
+//         toast.success(isEditMode ? 'Property updated!' : 'Property listed!');
+//         router.push('/properties/listed');
+//       } else {
+//         const errorData = await response.json();
+//         throw new Error(errorData.error || 'Submission failed');
+//       }
+//     } catch (error: any) {
+//       toast.error(error.message || 'Submission failed');
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
+
+//   const nextStep = async (e?: React.MouseEvent) => {
+//     if (e) e.preventDefault(); // Prevent any default button behavior
+    
+//     const fields = step === 1 
+//       ? ['title', 'description', 'propertyType']
+//       : ['address.street', 'address.city', 'address.state', 'address.pinCode'];
+    
+//     const isValid = await trigger(fields);
+//     if (isValid) {
+//       setStep(step + 1);
+//     } else {
+//       toast.error('Please fill all required fields');
+//     }
+//   };
+
+//   const prevStep = () => {
+//     if (step > 1) setStep(step - 1);
+  // };
+
+    // const handleFormSubmit = (e: React.FormEvent) => {
+  //   // Only allow form submission on step 3
+  //   if (step !== 3) {
+  //     e.preventDefault();
+  //     return;
+  //   }
+  // };
+  
+  'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Path } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
@@ -45,7 +199,7 @@ export default function PropertyForm({ initialData, isEditMode = false }: Proper
   const [media, setMedia] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  
+
   const {
     register,
     handleSubmit,
@@ -65,10 +219,10 @@ export default function PropertyForm({ initialData, isEditMode = false }: Proper
     }
   });
 
-  // Set initial form values when initialData changes
+  // Pre-fill form when editing
   useEffect(() => {
     if (initialData && isEditMode) {
-      const defaultValues = {
+      const defaultValues: FormData = {
         title: initialData.title || '',
         description: initialData.description || '',
         propertyType: initialData.propertyType || 'apartment',
@@ -96,10 +250,10 @@ export default function PropertyForm({ initialData, isEditMode = false }: Proper
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      const url = isEditMode 
+      const url = isEditMode
         ? `/api/properties/${initialData._id}`
         : '/api/properties';
-      
+
       const method = isEditMode ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -126,12 +280,13 @@ export default function PropertyForm({ initialData, isEditMode = false }: Proper
   };
 
   const nextStep = async (e?: React.MouseEvent) => {
-    if (e) e.preventDefault(); // Prevent any default button behavior
-    
-    const fields = step === 1 
-      ? ['title', 'description', 'propertyType']
-      : ['address.street', 'address.city', 'address.state', 'address.pinCode'];
-    
+    if (e) e.preventDefault();
+
+    const fields: Path<FormData>[] =
+      step === 1
+        ? ['title', 'description', 'propertyType']
+        : ['address.street', 'address.city', 'address.state', 'address.pinCode'];
+
     const isValid = await trigger(fields);
     if (isValid) {
       setStep(step + 1);
@@ -144,13 +299,7 @@ export default function PropertyForm({ initialData, isEditMode = false }: Proper
     if (step > 1) setStep(step - 1);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    // Only allow form submission on step 3
-    if (step !== 3) {
-      e.preventDefault();
-      return;
-    }
-  };
+
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-sm">

@@ -158,7 +158,9 @@ export default function PropertyCard({ property, editable = false }: {
         url: `${window.location.origin}/property/${property._id}`,
       });
     } catch (error) {
+      
       // Fallback to copying to clipboard
+      console.log("error found",error);
       await navigator.clipboard.writeText(`${window.location.origin}/property/${property._id}`);
       toast.success('Link copied to clipboard!');
     }

@@ -10,7 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, 
   LogOut, 
-  Settings, 
   Heart, 
   Calendar,
   Building2,

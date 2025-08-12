@@ -222,8 +222,8 @@ export async function GET(request: NextRequest) {
       isActive: property.isActive,
       host: {
         _id: property.host._id.toString(),
-        name: property.host.name,
-        email: property.host.email
+        // name: property.host.name,
+        // email: property.host.email
       },
       createdAt: property.createdAt,
       updatedAt: property.updatedAt

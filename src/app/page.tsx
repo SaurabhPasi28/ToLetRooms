@@ -1,5 +1,11 @@
+import { Suspense } from 'react';
 import { SearchWrapper } from '@/components/SearchWrapper';
 
 export default function HomePage() {
-  return <SearchWrapper />;
+   return (
+    <Suspense fallback={<div>Loading...</div>}>
+       <SearchWrapper />;
+      {/* <MyComponent /> */}
+    </Suspense>
+  );
 }

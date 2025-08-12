@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { X, Filter, Home, Building2, Mountain, Umbrella, TreePine, Wifi, Snowflake, ChefHat, Car, Tv } from 'lucide-react';
+import { X, Filter, Home, Building2, Wifi, Snowflake, ChefHat, Car, Tv } from 'lucide-react';
+// import { X, Filter, Home, Building2, Mountain, Umbrella, TreePine, Wifi, Snowflake, ChefHat, Car, Tv } from 'lucide-react';
+
 import { useState, useEffect, useCallback } from 'react';
 
 const propertyTypes = [

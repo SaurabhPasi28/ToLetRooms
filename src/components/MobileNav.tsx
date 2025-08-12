@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, Search, Home, Building2, User, Heart } from 'lucide-react';
+import { Menu, X, Home, Building2, User, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuthModal } from '@/components/auth/AuthModalContext';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+// import { getServerSession } from 'next-auth';
+// import { authOptions } from '@/lib/auth';
 
 export default function MobileNav() {
   const [isOpen, setIsOpen] = useState(false);
