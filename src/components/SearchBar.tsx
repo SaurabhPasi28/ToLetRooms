@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, MapPin, Calendar, Users, Loader2 } from 'lucide-react';
+import { Search, MapPin,Loader2 } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -168,10 +168,10 @@ export function SearchBar({ className = '', showAdvanced = false }: SearchBarPro
 
   return (
     <div className={`w-full max-w-4xl mx-auto ${className}`}>
-      <div className="bg-background border rounded-full shadow-lg p-2 flex items-center">
+      <div className="bg-background border rounded-full shadow-lg p-2 flex items-center  border-blue-700">
         {/* Location Search */}
-        <div className="flex-1 px-4 py-2 border-r border-border relative" ref={locationRef}>
-          <div className="flex items-center gap-2">
+        <div className="w-[30%] px-4 py-2 border-r border-border relative" ref={locationRef}>
+          <div className="flex items-center gap-2 ">
             <MapPin className="w-4 h-4 text-muted-foreground" />
             <input
               type="text"
@@ -237,7 +237,7 @@ export function SearchBar({ className = '', showAdvanced = false }: SearchBarPro
         </div>
 
         {/* Dates */}
-        <div className="flex-1 px-4 py-2 border-r border-border">
+        {/* <div className="flex-1 px-4 py-2 border-r border-border">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-muted-foreground" />
             <input
@@ -246,10 +246,10 @@ export function SearchBar({ className = '', showAdvanced = false }: SearchBarPro
               className="w-full bg-transparent border-none outline-none text-sm"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Guests */}
-        <div className="flex-1 px-4 py-2 border-r border-border">
+        {/* <div className="flex-1 px-4 py-2 border-r border-border">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-muted-foreground" />
             <input
@@ -258,7 +258,7 @@ export function SearchBar({ className = '', showAdvanced = false }: SearchBarPro
               className="w-full bg-transparent border-none outline-none text-sm"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Search Button */}
         <Button 

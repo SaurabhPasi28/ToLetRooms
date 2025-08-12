@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import PropertyCard from '@/components/property/PropertyCard';
 import { SearchBar } from '@/components/SearchBar';
 import { FilterSidebar } from '@/components/FilterSidebar';
+import { MobileFilterButton } from '@/components/MobileFilterButton';
 import { MapPin } from 'lucide-react';
 
 interface Property {
@@ -39,7 +40,6 @@ interface Property {
 
 export function SearchWrapper() {
   const searchParams = useSearchParams();
-  // const router = useRouter();
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [totalResults, setTotalResults] = useState(0);
@@ -184,8 +184,8 @@ export function SearchWrapper() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Filters Sidebar */}
-          <div className="lg:col-span-1">
+          {/* Filters Sidebar - Desktop Only */}
+          <div className="hidden lg:block lg:col-span-1">
             <FilterSidebar />
           </div>
 
@@ -223,6 +223,9 @@ export function SearchWrapper() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Filter Button */}
+      <MobileFilterButton />
     </div>
   );
 }

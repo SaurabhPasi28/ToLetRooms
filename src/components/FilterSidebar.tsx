@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X, Filter, Home, Building2, Wifi, Snowflake, ChefHat, Car, Tv } from 'lucide-react';
-// import { X, Filter, Home, Building2, Mountain, Umbrella, TreePine, Wifi, Snowflake, ChefHat, Car, Tv } from 'lucide-react';
 
 import { useState, useEffect, useCallback } from 'react';
 
@@ -28,7 +27,11 @@ const amenities = [
   { value: 'tv', icon: Tv, label: 'TV' }
 ];
 
-export function FilterSidebar() {
+interface FilterSidebarProps {
+  isMobile?: boolean;
+}
+
+export function FilterSidebar({ isMobile = false }: FilterSidebarProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
@@ -173,11 +176,16 @@ export function FilterSidebar() {
                           searchParams.get('propertyType') ||
                           searchParams.get('amenities');
 
+  // Different container classes for mobile vs desktop
+  const containerClasses = isMobile 
+    ? "space-y-6" 
+    : "space-y-6 sticky top-20 h-fit max-h-[calc(100vh-64px)] overflow-scroll";
+
   return (
-    <div className="space-y-6">
+    <div className={containerClasses}>
       {/* Active Filters */}
       {hasActiveFilters && (
-        <div className="space-y-3">
+        <div className="space-y-1">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-medium text-foreground">Active Filters</h4>
             <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -285,52 +293,54 @@ export function FilterSidebar() {
       </div>
 
       {/* Property Type Filter */}
-      <div className="space-y-3">
-        <Label className="text-sm font-medium">Property Type</Label>
-        <div className="space-y-2">
-          {propertyTypes.map((type) => {
-            const Icon = type.icon;
-            return (
-              <div key={type.value} className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id={type.value}
-                  name="propertyType"
-                  value={type.value}
-                  checked={searchParams.get('propertyType') === type.value}
-                  onChange={(e) => handleFilterChange('propertyType', e.target.value)}
-                  className="h-4 w-4 text-primary focus:ring-primary border-border"
-                />
-                <label htmlFor={type.value} className="flex items-center gap-2 text-sm cursor-pointer">
-                  <Icon className="w-4 h-4" />
-                  {type.label}
-                </label>
-              </div>
-            );
-          })}
+      <div className="flex justify-between flex-wrap">
+        <div className="space-y-3 mb-4">
+          <Label className="text-sm font-medium">Property Type</Label>
+          <div className="space-y-2">
+            {propertyTypes.map((type) => {
+              const Icon = type.icon;
+              return (
+                <div key={type.value} className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id={type.value}
+                    name="propertyType"
+                    value={type.value}
+                    checked={searchParams.get('propertyType') === type.value}
+                    onChange={(e) => handleFilterChange('propertyType', e.target.value)}
+                    className="h-4 w-4 text-primary focus:ring-primary border-border"
+                  />
+                  <label htmlFor={type.value} className="flex items-center gap-2 text-sm cursor-pointer">
+                    <Icon className="w-4 h-4" />
+                    {type.label}
+                  </label>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Amenities Filter */}
-      <div className="space-y-3">
-        <Label className="text-sm font-medium">Amenities</Label>
-        <div className="space-y-2">
-          {amenities.map((amenity) => {
-            const Icon = amenity.icon;
-            return (
-              <div key={amenity.value} className="flex items-center space-x-2">
-                <Checkbox
-                  id={amenity.value}
-                  checked={selectedAmenities.includes(amenity.value)}
-                  onCheckedChange={(checked) => handleAmenityChange(amenity.value, checked as boolean)}
-                />
-                <label htmlFor={amenity.value} className="flex items-center gap-2 text-sm cursor-pointer">
-                  <Icon className="w-4 h-4" />
-                  {amenity.label}
-                </label>
-              </div>
-            );
-          })}
+        {/* Amenities Filter */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium">Amenities</Label>
+          <div className="space-y-2">
+            {amenities.map((amenity) => {
+              const Icon = amenity.icon;
+              return (
+                <div key={amenity.value} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={amenity.value}
+                    checked={selectedAmenities.includes(amenity.value)}
+                    onCheckedChange={(checked) => handleAmenityChange(amenity.value, checked as boolean)}
+                  />
+                  <label htmlFor={amenity.value} className="flex items-center gap-2 text-sm cursor-pointer">
+                    <Icon className="w-4 h-4" />
+                    {amenity.label}
+                  </label>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
