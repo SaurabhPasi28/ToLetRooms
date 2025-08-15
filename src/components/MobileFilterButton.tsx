@@ -37,7 +37,7 @@ export function MobileFilterButton() {
   return (
     <>
       {/* Floating Filter Button - Mobile Only */}
-      <div className="md:hidden fixed bottom-6 left-10 z-50">
+      <div className="md:hidden fixed bottom-4 left-4 z-50">
         <div className="relative">
           {/* Blinking Green Ring - Behind the button */}
           {isBlinking && (

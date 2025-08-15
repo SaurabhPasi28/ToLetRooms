@@ -44,20 +44,6 @@ export default function MediaUploader({
     }
   };
 
-  // Initialize with existing images
-
-
-  // useEffect(() => {
-  //   if (!isInitialized && Array.isArray(value)) {
-  //     const initialFiles = value.map(url => ({
-  //       url,
-  //       type: url.match(/\.(mp4|mov|avi|webm)$/i) ? 'video' : 'image',
-  //       publicId: extractPublicIdFromUrl(url) || ''
-  //     }));
-  //     setFiles(initialFiles);
-  //     setIsInitialized(true);
-  //   }
-  // }, [value, isInitialized]);
 
   const getFileType = (url: string): MediaFile['type'] =>
   /\.(mp4|mov|avi|webm)$/i.test(url) ? 'video' : 'image';
@@ -109,16 +95,6 @@ export default function MediaUploader({
         return responseData;
       });
 
-      // const results = await Promise.all(uploadPromises);
-      // const newFiles = results.map(result => ({
-      //   url: result.url,
-      //   type: result.type === 'video' ? 'video' : 'image',
-      //   publicId: result.publicId
-      // }));
-
-      // const updatedFiles = [...files, ...newFiles];
-      // setFiles(updatedFiles);
-      // onChange(updatedFiles.map(f => f.url));
       const results = await Promise.all(uploadPromises);
 
 const newFiles: MediaFile[] = results.map(result => ({

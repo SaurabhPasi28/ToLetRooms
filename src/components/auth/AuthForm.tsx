@@ -215,6 +215,8 @@ export default function AuthForm({ isLogin, onClose }: { isLogin: boolean; onClo
           )}
 
           <div className="space-y-2">
+            
+            {/* Password */}
             <Label htmlFor="password">Password</Label>
             <div className="relative">
               <Input

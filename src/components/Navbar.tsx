@@ -1,14 +1,15 @@
+"use client";
+
 import Link from 'next/link';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { useSession } from 'next-auth/react';
 import UserMenu from '@/components/UserMenu';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import MobileNav from '@/components/MobileNav';
 import { ScrollSearchBar } from '@/components/ScrollSearchBar';
 
-export default async function Navbar() {
-  const session = await getServerSession(authOptions);
-  const isLoggedIn = !!session?.user;
+export default function Navbar() {
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated";
 
   return (
     <>

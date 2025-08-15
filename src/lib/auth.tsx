@@ -67,6 +67,10 @@ export const authOptions: AuthOptions = {
 
         }
 
+        // If this is a login attempt (no name/phone), show a clear error
+        if (!credentials.name && !credentials.phone) {
+          throw new Error('No account found with this email. Please sign up.');
+        }
         // Registration flow
         if (!credentials.password || credentials.password.length < 6) {
           throw new Error('Password must be at least 6 characters');
@@ -133,22 +137,22 @@ export const authOptions: AuthOptions = {
       }
       return session;
     },
-    async signIn({ user, account }) {
-      if (account?.provider === 'google') {
-        await dbConnect();
-        const existingUser = await User.findOne({ email: user.email });
+    // async signIn({ user, account }) {
+    //   if (account?.provider === 'google') {
+    //     await dbConnect();
+    //     const existingUser = await User.findOne({ email: user.email });
         
-        if (!existingUser) {
-          await User.create({
-            name: user.name,
-            email: user.email,
-            googleId: user.id,
-            role: 'tenant'
-          });
-        }
-      }
-      return true;
-    }
+    //     if (!existingUser) {
+    //       await User.create({
+    //         name: user.name,
+    //         email: user.email,
+    //         googleId: user.id,
+    //         role: 'tenant'
+    //       });
+    //     }
+    //   }
+    //   return true;
+    // }
   },
   pages: {
     signIn: "/login",
