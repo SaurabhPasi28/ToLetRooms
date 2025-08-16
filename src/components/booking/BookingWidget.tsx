@@ -37,6 +37,18 @@ export default function BookingWidget({
     return nights * price;
   };
 
+  // Add helper and wrap onSelect to enforce min 1 night
+  const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+
+  const handleSelect = (selected: DateRange | undefined) => {
+    if (!selected) return onDateChange(undefined);
+    if (selected.from && !selected.to) {
+      onDateChange({ from: selected.from, to: addDays(selected.from, 1) });
+    } else {
+      onDateChange(selected);
+    }
+  };
+
   return (
     <div className="border rounded-xl p-6 shadow-sm">
       <div className="flex justify-between items-start mb-6">
@@ -74,7 +86,7 @@ export default function BookingWidget({
             <CalendarComponent
               mode="range"
               selected={dateRange}
-              onSelect={onDateChange}
+              onSelect={handleSelect}
               numberOfMonths={2}
               disabled={{ before: new Date() }}
             />
@@ -102,7 +114,7 @@ export default function BookingWidget({
             <CalendarComponent
               mode="range"
               selected={dateRange}
-              onSelect={onDateChange}
+              onSelect={handleSelect}
               numberOfMonths={2}
               disabled={{ before: dateRange?.from || new Date() }}
             />

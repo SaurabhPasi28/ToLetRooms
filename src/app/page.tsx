@@ -5,7 +5,6 @@ export default function HomePage() {
    return (
     <Suspense fallback={<div>Loading...</div>}>
        <SearchWrapper />;
-      {/* <MyComponent /> */}
     </Suspense>
   );
 }

@@ -29,10 +29,10 @@ export default function BookingCard({ booking }: {
         <div className="md:col-span-2">
           <div className="flex gap-4">
             <div className="relative w-24 h-16 rounded-md overflow-hidden flex-shrink-0">
-              {booking.property.media[0]?.type === 'image' ? (
+              {booking.property?.media?.[0]?.type === 'image' && booking.property?.media?.[0]?.url ? (
                 <Image
                   src={booking.property.media[0].url}
-                  alt={booking.property.title}
+                  alt={booking.property.title || 'Property'}
                   fill
                   className="object-cover"
                 />
@@ -43,7 +43,7 @@ export default function BookingCard({ booking }: {
               )}
             </div>
             <div>
-              <h3 className="font-medium">{booking.property.title}</h3>
+              <h3 className="font-medium">{booking.property?.title || 'Untitled Property'}</h3>
               <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                 <Calendar className="w-4 h-4" />
                 <span>

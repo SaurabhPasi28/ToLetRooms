@@ -1,23 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
-import { ArrowLeft, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 import PropertyForm from '@/components/property/PropertyForm';
 
 export default function EditPropertyPage() {
-  const {  status } = useSession();
-  // const { data: session, status } = useSession();
-
+  const { status } = useSession();
   const router = useRouter();
   const params = useParams();
-  const [property, setProperty] = useState(null);
+  const [property, setProperty] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Get the id from params
   const id = params?.id as string;
 
   useEffect(() => {
@@ -25,25 +20,19 @@ export default function EditPropertyPage() {
       router.push('/');
       return;
     }
-
     if (status === 'authenticated' && id) {
       fetchProperty();
     }
-  }, [status, router, id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, id]);
 
   const fetchProperty = async () => {
-    if (!id) return;
-    
     try {
-      const response = await fetch(`/api/properties/edit/${id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setProperty(data);
-      } else {
-        throw new Error('Failed to fetch property');
-      }
-    } catch (error) {
-      console.error('Error fetching property:', error);
+      const res = await fetch(`/api/properties/edit/${id}`);
+      if (!res.ok) throw new Error('Failed to fetch property');
+      const data = await res.json();
+      setProperty(data);
+    } catch {
       toast.error('Failed to load property');
       router.push('/properties/listed');
     } finally {
@@ -67,38 +56,20 @@ export default function EditPropertyPage() {
           <p className="text-muted-foreground mb-4">
             The property you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to edit it.
           </p>
-          <Button onClick={() => router.push('/properties/listed')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <button
+            onClick={() => router.push('/properties/listed')}
+            className="px-4 py-2 rounded bg-blue-600 text-white"
+          >
             Back to My Properties
-          </Button>
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="mb-8">
-          <Button 
-            variant="ghost" 
-            onClick={() => router.push('/properties/listed')}
-            className="mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to My Properties
-          </Button>
-          <h1 className="text-3xl font-bold">Edit Property</h1>
-          <p className="text-muted-foreground mt-2">
-            Update your property details and images
-          </p>
-        </div>
-
-        <PropertyForm 
-          initialData={property} 
-          isEditMode={true} 
-        />
-      </div>
+    <div className="min-h-screen bg-background text-foreground py-6">
+      <PropertyForm initialData={property} isEditMode />
     </div>
   );
 }

@@ -4,11 +4,11 @@ import {ChevronLeft, ChevronRight,MapPin, Star, User, Play,Check, Heart } from '
 import Image from 'next/image';
 import { useState } from 'react';
 // import { Button } from '@/components/ui/button';
-import BookingWidget from '@/components/booking/BookingWidget';
-import { DateRange } from 'react-day-picker';
+// import BookingWidget from '@/components/booking/BookingWidget';
+// import { DateRange } from 'react-day-picker';
 import { Share2, AlertCircle } from 'lucide-react';
 // import { Toast } from 'react-hot-toast';
-import { Skeleton } from '@/components/ui/skeleton';
+// import { Skeleton } from '@/components/ui/skeleton';
 interface PropertyDetailsProps {
   property: {
     _id: string;
@@ -39,11 +39,18 @@ interface PropertyDetailsProps {
 
 export default function PropertyDetails({ property }: PropertyDetailsProps) {
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [guests, setGuests] = useState(1);
+  // const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  // const [guests, setGuests] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const currentMedia = property.media[currentMediaIndex];
+  const mediaItems = Array.isArray(property.media)
+    ? property.media.map((m: any) =>
+        typeof m === 'string'
+          ? { url: m, type: /\.(mp4|mov|avi|webm|mkv|flv|wmv)$/i.test(m) ? 'video' : 'image' }
+          : m
+      )
+    : [];
+  const currentMedia = mediaItems[currentMediaIndex];
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -69,11 +76,11 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
         )}
 
         {/* Navigation arrows */}
-        {property.media.length > 1 && (
+        {mediaItems.length > 1 && (
           <>
             <button
               onClick={() => setCurrentMediaIndex(prev => 
-                prev === 0 ? property.media.length - 1 : prev - 1
+                prev === 0 ? mediaItems.length - 1 : prev - 1
               )}
               className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white"
             >
@@ -81,7 +88,7 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
             </button>
             <button
               onClick={() => setCurrentMediaIndex(prev => 
-                prev === property.media.length - 1 ? 0 : prev + 1
+                prev === mediaItems.length - 1 ? 0 : prev + 1
               )}
               className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white"
             >
@@ -90,19 +97,30 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
           </>
         )}
 
-        {/* Favorite button */}
-        <button
-          onClick={() => setIsFavorite(!isFavorite)}
-          className="absolute top-4 right-4 p-2 bg-white/80 rounded-full shadow-md hover:bg-white"
-        >
-          <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-700'}`} />
-        </button>
+        {/* Favorite and Share buttons */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <button
+            onClick={() => setIsFavorite(!isFavorite)}
+            className="p-2 bg-white/80 rounded-full shadow-md hover:bg-white"
+          >
+            <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-700'}`} />
+          </button>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+            }}
+            className="p-2 bg-white/80 rounded-full shadow-md hover:bg-white"
+            title="Copy link"
+          >
+            <Share2 className="w-5 h-5 text-gray-700" />
+          </button>
+        </div>
       </div>
 
       {/* Thumbnail strip */}
-      {property.media.length > 1 && (
+      {mediaItems.length > 1 && (
         <div className="flex gap-2 mb-8 overflow-x-auto py-2">
-          {property.media.map((media, index) => (
+          {mediaItems.map((media, index) => (
             <button
               key={index}
               onClick={() => setCurrentMediaIndex(index)}
@@ -160,6 +178,20 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
             </div>
           </div>
 
+          {/* Safety info - responsive and well-positioned */}
+          <div className="border rounded-lg p-4 mb-8 bg-blue-50 border-blue-100">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="font-medium mb-1">Safety information</h3>
+                <p className="text-sm text-muted-foreground">
+                  This property has safety measures in place including smoke detectors
+                  and a first aid kit. Always practice safe traveling.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Host information */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Hosted by {property.host.name}</h2>
@@ -183,55 +215,6 @@ export default function PropertyDetails({ property }: PropertyDetailsProps) {
               </div>
             </div>
           </div>
-        </div>
-        {!property && (
-  <div className="space-y-4">
-    <Skeleton className="h-[400px] w-full rounded-xl" />
-    <div className="space-y-2">
-      <Skeleton className="h-8 w-3/4" />
-      <Skeleton className="h-4 w-1/2" />
-    </div>
-  </div>
-)}
-        {/* Right column - Booking widget */}
-
-        {property && (
-  <>
-    {/* Add share button next to favorite */}
-    <button
-      onClick={() => {
-        navigator.clipboard.writeText(window.location.href);
-        // Toast.s('Link cosupied to clipboard!');
-      }}
-      className="absolute top-4 right-16 p-2 bg-white/80 rounded-full shadow-md hover:bg-white"
-    >
-      <Share2 className="w-5 h-5 text-gray-700" />
-    </button>
-
-    {/* Add safety info section */}
-    <div className="border rounded-lg p-4 mt-8 bg-blue-50 border-blue-100">
-      <div className="flex items-start gap-3">
-        <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-        <div>
-          <h3 className="font-medium mb-1">Safety information</h3>
-          <p className="text-sm text-muted-foreground">
-            This property has safety measures in place including smoke detectors 
-            and a first aid kit. Always practice safe traveling.
-          </p>
-        </div>
-      </div>
-    </div>
-  </>
-)}
-        <div className="sticky top-4 h-fit">
-          <BookingWidget 
-            price={property.price} 
-            dateRange={dateRange}
-            onDateChange={setDateRange}
-            guests={guests}
-            onGuestsChange={setGuests}
-            maxGuests={property.maxGuests}
-          />
         </div>
       </div>
     </div>

@@ -5,54 +5,82 @@ import { dbConnect } from '@/lib/dbConnect';
 import Property from '@/models/Property';
 import { deleteManyFromCloudinary, extractPublicIdFromUrl } from '@/lib/cloudinary';
 
+
+import { Types } from 'mongoose';
+
 // GET - Get property details
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+	request: NextRequest,
+	{ params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+	const { id } = await params;
 
-    await dbConnect();
+	try {
+		await dbConnect();
 
-    const property = await Property.findOne({
-      _id: id,
-      host: session.user.id
-    }).lean();
+		type PopulatedHost = {
+			_id: Types.ObjectId | string;
+			name?: string;
+			email?: string;
+			phone?: string;
+			profilePicture?: string | null;
+		};
+		type LeanPropertyWithMaybeHost = Omit<import('@/types/property').LeanProperty, 'host'> & {
+			host: Types.ObjectId | PopulatedHost;
+			media: string[];
+		};
 
-    if (!property) {
-      return NextResponse.json({ error: 'Property not found' }, { status: 404 });
-    }
+		const property = await Property.findById(id)
+			.populate('host', 'name email phone profilePicture')
+			.lean<LeanPropertyWithMaybeHost>();
 
-    // Serialize the property data
-    const propertyData = {
-      _id: property._id.toString(),
-      title: property.title,
-      description: property.description,
-      price: property.price,
-      propertyType: property.propertyType,
-      address: property.address,
-      media: property.media || [],
-      amenities: property.amenities || [],
-      maxGuests: property.maxGuests,
-      bedrooms: property.bedrooms,
-      bathrooms: property.bathrooms,
-      isActive: property.isActive,
-      host: property.host.toString(),
-      createdAt: property.createdAt,
-      updatedAt: property.updatedAt
-    };
+		if (!property) {
+			return NextResponse.json({ error: 'Property not found' }, { status: 404 });
+		}
 
-    return NextResponse.json(propertyData);
-  } catch (error) {
-    console.error('Error fetching property:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+		const hostObj = property.host as PopulatedHost | Types.ObjectId;
+		const isPopulated =
+			hostObj && typeof hostObj === 'object' && ('name' in hostObj || '_id' in hostObj);
+
+		const media = Array.isArray(property.media) ? property.media : [];
+
+		const propertyData = {
+			_id: property._id.toString(),
+			title: property.title,
+			description: property.description,
+			price: property.price,
+			propertyType: property.propertyType,
+			address: property.address,
+			media,
+			amenities: property.amenities || [],
+			maxGuests: property.maxGuests,
+			bedrooms: property.bedrooms,
+			bathrooms: property.bathrooms,
+			isActive: property.isActive,
+			host: isPopulated
+				? {
+						_id: (hostObj as PopulatedHost)._id?.toString?.() ?? String(hostObj),
+						name: (hostObj as PopulatedHost).name || '',
+						email: (hostObj as PopulatedHost).email || '',
+						phone: (hostObj as PopulatedHost).phone || '',
+						avatar: (hostObj as PopulatedHost).profilePicture || null
+				  }
+				: {
+						_id: String(property.host),
+						name: '',
+						email: '',
+						phone: '',
+						avatar: null
+				  },
+			createdAt: property.createdAt,
+			updatedAt: property.updatedAt
+		};
+
+		return NextResponse.json({ property: propertyData });
+	} catch (error) {
+		console.error('Error fetching property:', error);
+		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+	}
 }
 
 // DELETE - Delete property

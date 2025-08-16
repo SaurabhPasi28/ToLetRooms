@@ -1,32 +1,41 @@
-export default function DashboardCard({ 
-    title, value, icon, trend, change 
-  }: {
-    title: string;
-    value: string;
-    icon: React.ReactNode;
-    trend: 'up' | 'down' | 'steady';
-    change: string;
-  }) {
-    return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex justify-between items-start">
-          <div>
-            <p className="text-sm font-medium text-gray-500">{title}</p>
-            <p className="text-2xl font-bold mt-1">{value}</p>
-            <p className={`text-sm mt-2 ${
-              trend === 'up' ? 'text-green-500' : 
-              trend === 'down' ? 'text-red-500' : 'text-gray-500'
-            }`}>
-              {change}
-            </p>
-          </div>
-          <div className={`p-3 rounded-full ${
-            trend === 'up' ? 'bg-green-100 text-green-600' : 
-            trend === 'down' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'
-          }`}>
-            {icon}
-          </div>
-        </div>
+export default function DashboardCard({
+  title,
+  value,
+  icon,
+  change,
+  href,
+}: {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  trend?: 'up' | 'down' | 'steady';
+  change?: string;
+  href?: string;
+}) {
+  return (
+    <div className="bg-white rounded-lg shadow p-4 hover:shadow-md transition">
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">{title}</div>
+        {href && (
+          <a href={href} className="text-xs text-blue-600 hover:underline">
+            View
+          </a>
+        )}
       </div>
-    );
-  }
+      <div className="mt-2 flex items-center justify-between">
+        <div className="text-2xl font-semibold">{value}</div>
+        <div className="text-muted-foreground">{icon}</div>
+      </div>
+      {change && (
+        <div className="mt-1 text-xs text-muted-foreground">
+          {change}
+        </div>
+      )}
+      {href && (
+        <a href={href} className="mt-3 block text-center text-sm text-blue-600 hover:underline">
+          Go to {title}
+        </a>
+      )}
+    </div>
+  );
+}
