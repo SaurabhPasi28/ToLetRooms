@@ -6,6 +6,7 @@ import UserMenu from '@/components/UserMenu';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import MobileNav from '@/components/MobileNav';
 import { ScrollSearchBar } from '@/components/ScrollSearchBar';
+import { Suspense } from 'react';
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -53,7 +54,9 @@ export default function Navbar() {
       </nav>
 
       {/* Scroll-triggered Search Bar */}
-      <ScrollSearchBar />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ScrollSearchBar />
+        </Suspense>
     </>
   );
 }
