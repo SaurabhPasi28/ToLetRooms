@@ -1,7 +1,7 @@
 // src/app/dashboard/owner/bookings/page.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { format, differenceInDays } from "date-fns";
@@ -195,7 +195,7 @@ export default function HostBookingsManagement() {
   // const [showAnalytics, setShowAnalytics] = useState(true);
   const showAnalytics=true;
 
-  async function fetchBookings() {
+  const fetchBookings = useCallback(async () => {
     setError(null);
     try {
       const params = new URLSearchParams();
@@ -215,12 +215,12 @@ export default function HostBookingsManagement() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [tab, showAnalytics, searchQ]);
 
   useEffect(() => {
     setLoading(true);
     fetchBookings();
-  }, [tab, showAnalytics]);
+  }, [tab, showAnalytics, fetchBookings]);
 
   // Search with debounce
   useEffect(() => {
@@ -228,13 +228,13 @@ export default function HostBookingsManagement() {
       if (searchQ !== undefined) fetchBookings();
     }, 500);
     return () => clearTimeout(timeoutId);
-  }, [searchQ]);
+  }, [searchQ, fetchBookings]);
 
   // Auto-refresh every 2 minutes
   useEffect(() => {
     const interval = setInterval(fetchBookings, 120000);
     return () => clearInterval(interval);
-  }, [tab]);
+  }, [tab, fetchBookings]);
 
   const filtered = useMemo(() => {
     return bookings.slice().sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));

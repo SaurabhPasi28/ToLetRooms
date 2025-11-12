@@ -64,7 +64,8 @@ export default function BookingsPage() {
     })();
   }, []);
 
-  const now = new Date();
+  // Memoize the current date to prevent unnecessary re-renders
+  const now = useMemo(() => new Date(), []);
 
   const filtered = useMemo(() => {
     let items = bookings.slice().sort((a, b) => +new Date(b.checkIn) - +new Date(a.checkIn));

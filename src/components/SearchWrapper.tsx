@@ -1,6 +1,6 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import PropertyCard from '@/components/property/PropertyCard';
 import { SearchBar } from '@/components/SearchBar';
@@ -38,36 +38,139 @@ interface Property {
   updatedAt?: string;
 }
 
+const CACHE_KEY = 'property_search_cache';
+const SCROLL_KEY = 'property_search_scroll';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 export function SearchWrapper() {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [properties, setProperties] = useState<Property[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [totalResults, setTotalResults] = useState(0);
   
-  // Use ref to store scroll position to avoid re-renders
-  const scrollPositionRef = useRef(0);
-  const isInitialLoad = useRef(true);
+  const isInitialMount = useRef(true);
+  const hasRestoredScroll = useRef(false);
+  const isFetching = useRef(false);
 
-  // Save scroll position before any navigation
-  const saveScrollPosition = () => {
-    scrollPositionRef.current = window.scrollY;
-  };
+  // Continuously save scroll position and data while on home page
+  useEffect(() => {
+    const saveState = () => {
+      if (properties.length > 0 && (pathname === '/' || pathname === '')) {
+        const cacheData = {
+          properties,
+          totalResults,
+          searchParams: searchParams.toString(),
+          timestamp: Date.now(),
+          scrollPosition: window.scrollY
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+        sessionStorage.setItem(SCROLL_KEY, String(window.scrollY));
+      }
+    };
 
-  // Restore scroll position after navigation
-  const restoreScrollPosition = () => {
-    if (scrollPositionRef.current > 0) {
-      window.scrollTo(0, scrollPositionRef.current);
+    // Save state periodically while scrolling
+    let scrollTimeout: NodeJS.Timeout;
+    const handleScroll = () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(saveState, 150);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Save when component unmounts
+    return () => {
+      saveState();
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [properties, totalResults, searchParams, pathname]);
+
+  // Try to restore from cache on mount
+  useEffect(() => {
+    if (isInitialMount.current) {
+      const cachedData = sessionStorage.getItem(CACHE_KEY);
+      const cachedScroll = sessionStorage.getItem(SCROLL_KEY);
+      
+      if (cachedData) {
+        try {
+          const parsed = JSON.parse(cachedData);
+          const age = Date.now() - parsed.timestamp;
+          
+          // Check if cache is still valid and search params match
+          if (age < CACHE_DURATION && parsed.searchParams === searchParams.toString()) {
+            console.log('Restoring from cache, scroll position:', parsed.scrollPosition);
+            setProperties(parsed.properties);
+            setTotalResults(parsed.totalResults);
+            setIsLoading(false);
+            
+            // Restore scroll position with multiple attempts to ensure it works
+            const scrollPos = parseInt(cachedScroll || String(parsed.scrollPosition), 10);
+            if (scrollPos > 0 && !hasRestoredScroll.current) {
+              // Try immediate restore
+              window.scrollTo({ top: scrollPos, behavior: 'instant' as ScrollBehavior });
+              
+              // Also try after DOM is ready
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: scrollPos, behavior: 'instant' as ScrollBehavior });
+              });
+              
+              // And with a delay to ensure content is rendered
+              setTimeout(() => {
+                window.scrollTo({ top: scrollPos, behavior: 'instant' as ScrollBehavior });
+                hasRestoredScroll.current = true;
+                console.log('Scroll restored to:', scrollPos);
+              }, 100);
+              
+              // Final attempt after a longer delay
+              setTimeout(() => {
+                if (Math.abs(window.scrollY - scrollPos) > 50) {
+                  window.scrollTo({ top: scrollPos, behavior: 'instant' as ScrollBehavior });
+                  console.log('Final scroll adjustment to:', scrollPos);
+                }
+              }, 300);
+            }
+            
+            isInitialMount.current = false;
+            return; // Skip fetching if we have valid cache
+          }
+        } catch (error) {
+          console.error('Error restoring cache:', error);
+        }
+      }
+      
+      isInitialMount.current = false;
     }
-  };
+  }, [searchParams]);
 
   // Fetch properties based on search params
   const fetchProperties = async () => {
-    // Don't save scroll position on initial load
-    if (!isInitialLoad.current) {
-      saveScrollPosition();
+    // Prevent multiple simultaneous fetches
+    if (isFetching.current) {
+      return;
+    }
+
+    // If we already have data from cache and params haven't changed, skip fetch
+    if (!isInitialMount.current && properties.length > 0) {
+      const cachedData = sessionStorage.getItem(CACHE_KEY);
+      if (cachedData) {
+        try {
+          const parsed = JSON.parse(cachedData);
+          if (parsed.searchParams === searchParams.toString()) {
+            console.log('Skipping fetch - using cached data');
+            return; // Skip refetch if cache matches
+          }
+        } catch {
+          // Continue with fetch - ignore parsing errors
+        }
+      }
     }
     
+    isFetching.current = true;
     setIsLoading(true);
+    
+    // Save current scroll position before fetching new results
+    const currentScroll = window.scrollY;
 
     try {
       // Build query string from search params
@@ -82,6 +185,7 @@ export function SearchWrapper() {
       if (searchParams.get('amenities')) queryParams.set('amenities', searchParams.get('amenities')!);
       if (searchParams.get('maxGuests')) queryParams.set('maxGuests', searchParams.get('maxGuests')!);
 
+      console.log('Fetching properties from API...');
       const response = await fetch(`/api/search?${queryParams.toString()}`);
       if (response.ok) {
         const data = await response.json();
@@ -128,39 +232,54 @@ export function SearchWrapper() {
         
         setProperties(transformedProperties);
         setTotalResults(data.pagination.totalResults);
+        
+        // Cache the new data
+        const cacheData = {
+          properties: transformedProperties,
+          totalResults: data.pagination.totalResults,
+          searchParams: searchParams.toString(),
+          timestamp: Date.now(),
+          scrollPosition: currentScroll
+        };
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+        
+        // If search params changed (new search), scroll to top
+        if (currentScroll > 300) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        console.log('Properties fetched and cached:', transformedProperties.length);
       }
     } catch (error) {
       console.error('Error fetching properties:', error);
     } finally {
       setIsLoading(false);
-      
-      // Restore scroll position after a short delay, but not on initial load
-      if (!isInitialLoad.current) {
-        setTimeout(restoreScrollPosition, 100);
-      } else {
-        isInitialLoad.current = false;
-      }
+      isFetching.current = false;
     }
   };
 
-  // Fetch properties when search params change
+  // Fetch properties when search params change (but not on initial mount if we have cache)
   useEffect(() => {
-    fetchProperties();
+    const cachedData = sessionStorage.getItem(CACHE_KEY);
+    let shouldFetch = true;
+
+    if (isInitialMount.current && cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        const age = Date.now() - parsed.timestamp;
+        if (age < CACHE_DURATION && parsed.searchParams === searchParams.toString()) {
+          shouldFetch = false; // Don't fetch if we have valid cache
+        }
+      } catch {
+        // Continue with fetch - ignore parsing errors
+      }
+    }
+
+    if (shouldFetch) {
+      fetchProperties();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
-
-  // Listen for search events from child components
-  useEffect(() => {
-    const handleSearchEvent = () => {
-      saveScrollPosition();
-    };
-
-    // Add event listener for search events
-    window.addEventListener('search', handleSearchEvent);
-    
-    return () => {
-      window.removeEventListener('search', handleSearchEvent);
-    };
-  }, []);
 
   return (
     <div className="min-h-screen bg-background">

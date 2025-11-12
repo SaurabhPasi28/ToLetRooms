@@ -168,9 +168,25 @@ export default function PropertyCard({ property, editable = false }: {
 
   const currentMedia = property.media?.[currentMediaIndex];
 
+  // Save scroll position and trigger state save when user clicks to view property details or book
+  const handlePropertyClick = () => {
+    const scrollY = window.scrollY;
+    sessionStorage.setItem('property_search_scroll', String(scrollY));
+    console.log('Property clicked, saved scroll position:', scrollY);
+  };
+
+  const handleBookClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const scrollY = window.scrollY;
+    sessionStorage.setItem('property_search_scroll', String(scrollY));
+    console.log('Book clicked, saved scroll position:', scrollY);
+    router.push(`/book/${property._id}`);
+  };
+
   return (
     <div className="group relative bg-background border-4   rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-      <Link href={`/property/${property._id}`} className="block">
+      <Link href={`/property/${property._id}`} onClick={handlePropertyClick} className="block">
         <div className="relative aspect-video bg-muted ">
           {property.media?.length ? (
             <>
@@ -345,7 +361,7 @@ export default function PropertyCard({ property, editable = false }: {
 
         {!editable && (
           <Button
-            onClick={() => router.push(`/book/${property._id}`)}
+            onClick={handleBookClick}
             className="w-full"
           >
             <Calendar className="w-4 h-4 mr-2" />

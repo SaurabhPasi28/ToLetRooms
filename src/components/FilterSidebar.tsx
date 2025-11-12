@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { X, Filter, Home, Building2, Wifi, Snowflake, ChefHat, Car, Tv } from 'lucide-react';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const propertyTypes = [
   { value: 'apartment', icon: Building2, label: 'Apartment' },
@@ -38,6 +38,7 @@ export function FilterSidebar({ isMobile = false }: FilterSidebarProps) {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
   const [bedrooms, setBedrooms] = useState<number>(1);
   const [locationInput, setLocationInput] = useState<string>('');
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize state from URL params
   useEffect(() => {
@@ -67,16 +68,15 @@ export function FilterSidebar({ isMobile = false }: FilterSidebarProps) {
 
   // Debounced filter update to prevent excessive API calls
   const debouncedUpdateFilters = useCallback(
-    (() => {
-      let timeoutId: NodeJS.Timeout;
-      return (params: URLSearchParams) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          // Use replace with scroll: false to prevent auto-scroll
-          router.replace(`/?${params.toString()}`, { scroll: false });
-        }, 300); // 300ms delay
-      };
-    })(),
+    (params: URLSearchParams) => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      debounceTimeoutRef.current = setTimeout(() => {
+        // Use replace with scroll: false to prevent auto-scroll
+        router.replace(`/?${params.toString()}`, { scroll: false });
+      }, 300); // 300ms delay
+    },
     [router]
   );
 

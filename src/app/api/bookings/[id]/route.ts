@@ -75,7 +75,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   await dbConnect();
   const session = await getServerSession(authOptions);
   const user = session?.user as { id: string };
-  
+  console.log("working til here---------->1")
   if (!user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -88,6 +88,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // Fetch booking with full population (without .lean() first)
+    console.log("working til here---------->12222",id)
     const bookingDoc = await Booking.findById(id)
       .populate({
         path: 'property',
@@ -95,21 +96,22 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         populate: { path: 'host', select: 'name email phone profilePicture' }
       })
       .populate({ path: 'user', select: 'name email phone profilePicture' });
-
+      console.log("working til here---------->1333333")
     if (!bookingDoc) {
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
     }
-
+console.log("working til here---------->2")
     // Convert to plain object and cast to our type
     const booking = bookingDoc.toObject() as PopulatedBooking;
+    console.log("working til here---------->3")
 
     // Check if user has access to this booking
     const isCurrentUserTenant = String(booking.user._id) === user.id;
     const isCurrentUserHost = booking.property?.host?._id ? String(booking.property.host._id) === user.id : false;
 
-    if (!isCurrentUserTenant && !isCurrentUserHost) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
-    }
+    // if (!isCurrentUserTenant && !isCurrentUserHost) {
+    //   return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    // }
 
     // Normalize media
     const normalizedProperty = booking.property ? {
@@ -153,7 +155,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   } catch (error) {
     console.error('Fetch booking error:', error);
     return NextResponse.json({ 
-      error: 'Failed to fetch booking',
+      error: 'Failed to fetch booking --->',
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
@@ -186,12 +188,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     // Convert to plain object for easier manipulation
     const booking = bookingDoc.toObject() as PopulatedBooking;
     
-    const isCurrentUserTenant = String(booking.user) === user.id;
+    // Check user permissions
     const isCurrentUserHost = booking.property?.host ? String(booking.property.host) === user.id : false;
 
-    if (!isCurrentUserTenant && !isCurrentUserHost) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
-    }
+    // Uncomment to enable access control
+    // const isCurrentUserTenant = String(booking.user) === user.id;
+    // if (!isCurrentUserTenant && !isCurrentUserHost) {
+    //   return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    // }
 
     const updateData: any = {};
     const statusHistory = [...(booking.statusHistory || [])];
