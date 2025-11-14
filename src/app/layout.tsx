@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ClientWrapper from "@/components/ClientWrapper";
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default function RootLayout({
             <Navbar/>
             <main className="flex-1">
               {children}
+              <Analytics />
             </main>
             <Footer />
           </div>

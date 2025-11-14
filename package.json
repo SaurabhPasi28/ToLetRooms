@@ -25,6 +25,7 @@
     "@radix-ui/react-slot": "^1.2.2",
     "@types/bcryptjs": "^3.0.0",
     "@types/mongodb": "^4.0.7",
+    "@vercel/analytics": "^1.5.0",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.6.1",
